@@ -14,24 +14,8 @@ ApplicationWindow {
     Material.theme: Material.Dark
     Material.accent: Material.Blue
 
-    // Keep on top of Meshroom main window (optional, remove if annoying)
+    // Keep on top of Meshroom main window
     flags: Qt.Window | Qt.WindowStaysOnTopHint
-
-    // --- Wizard ---
-    // wizard is an object that holds the UI state
-    // It enables us to switch between each layout
-    QtObject {
-        id: wizard
-
-        property int    currentIndex:  0          // active page index
-        property var    template:      null       // selected template object
-
-        // Navigate forward / backward
-        function goTo(idx) { currentIndex = idx }
-        function next()    { currentIndex++ }
-        function back()    { if (currentIndex > 0) currentIndex-- }
-        function cancel()  { root.close() }
-    }
 
     // --- Toolbar ---
     header: ToolBar {
@@ -42,7 +26,7 @@ ApplicationWindow {
 
             Label {
                 text: {
-                    switch (wizard.currentIndex) {
+                    switch (stack.currentIndex) {
                         case 0: return "Choose Template"
                         default: return ""
                     }
@@ -65,7 +49,7 @@ ApplicationWindow {
                         width: 22
                         height: 22
                         radius: 11
-                        color: index <= wizard.currentIndex ? Material.accent : "#555"
+                        color: index <= stack.currentIndex ? Material.accent : "#555"
                         Label {
                             anchors.centerIn: parent
                             text: index + 1
@@ -78,14 +62,14 @@ ApplicationWindow {
                     Label {
                         text: modelData
                         font.pixelSize: 11
-                        color: index <= wizard.currentIndex ? "white" : "#888"
+                        color: index <= stack.currentIndex ? "white" : "#888"
                     }
 
                     // Connector line
                     Rectangle {
                         visible: index < stepsIndicator.count - 1
                         width: 18; height: 2
-                        color: index < wizard.currentIndex ? Material.accent : "#555"
+                        color: index < stack.currentIndex ? Material.accent : "#555"
                     }
                 }
             }
@@ -98,11 +82,17 @@ ApplicationWindow {
     StackLayout {
         id: stack
         anchors.fill: parent
-        currentIndex: wizard.currentIndex
+        currentIndex: 0  // driven by onPageChange
 
         TemplatePage {
             id: templatePage
-            wizard: wizard
+        }
+    }
+
+    Connections {
+        target: pipelineBatcherBackend
+        function onPageChanged(page) {
+            stack.currentIndex = page
         }
     }
 

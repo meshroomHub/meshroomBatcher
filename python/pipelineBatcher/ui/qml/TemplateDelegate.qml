@@ -7,7 +7,6 @@ Rectangle {
     id: root
 
     // Input properties
-    property var wizard
     property int templateIndex
     property var templateModelData
     property int selectedIndex: -1
@@ -34,7 +33,8 @@ Rectangle {
     Rectangle {
         anchors.fill: parent
         radius: parent.radius
-        color: parent.hovered ? "#ffffff08" : "transparent"
+        opacity: parent.hovered ? 0.3 : 0
+        color: Qt.lighter(root.color, 2)
     }
 
     MouseArea {

@@ -6,8 +6,6 @@ import QtQuick.Controls.Material 2.15
 Item {
     id: root
 
-    required property var wizard
-
     //--- State ---
     property var templates: []
     property int selectedIndex: -1
@@ -27,7 +25,6 @@ Item {
             templates = JSON.parse(tplJsonList)
         } catch(e) {
             templates = []
-            console.warn("Failed to parse template list:", e)
         }
     }
 
@@ -73,7 +70,7 @@ Item {
             Button {
                 text: "Cancel"
                 flat: true
-                onClicked: wizard.cancel()
+                onClicked: pipelineBatcherBackend.cancel()
             }
             Item { Layout.fillWidth: true }
             Button {
@@ -82,8 +79,8 @@ Item {
                 highlighted: true
                 enabled: selectedIndex >= 0
                 onClicked: {
-                    wizard.template = templates[selectedIndex]
-                    wizard.next()
+                    pipelineBatcherBackend.selectTemplate(templates[selectedIndex]["index"])
+                    pipelineBatcherBackend.next()
                 }
             }
         }
@@ -95,7 +92,6 @@ Item {
 
         TemplateDelegate {
             width: listView.width
-            wizard: root.wizard
             templateIndex: index
             templateModelData: modelData
             selectedIndex: root.selectedIndex
@@ -106,8 +102,8 @@ Item {
 
             onConfirmed: (idx) => {
                 root.selectedIndex = idx
-                wizard.template = templates[idx]
-                wizard.next()
+                pipelineBatcherBackend.selectTemplate(templates[idx]["index"])
+                pipelineBatcherBackend.next()
             }
         }
     }
