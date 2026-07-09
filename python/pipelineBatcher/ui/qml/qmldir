@@ -4,3 +4,7 @@ singleton TBColors     1.0 TBColors.qml
 app                    1.0 app.qml
 TemplatePage           1.0 TemplatePage.qml
 TemplateDelegate       1.0 TemplateDelegate.qml
+EntityPage             1.0 EntityPage.qml
+EntityDelegate         1.0 EntityDelegate.qml
+EntityTreeNode         1.0 EntityTreeNode.qml
+EntitySelectionSummary 1.0 EntitySelectionSummary.qml
