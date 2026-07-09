@@ -1,0 +1,28 @@
+stages:
+  - build
+  - lint
+
+variables:
+  REZ_LOCAL_PACKAGES_PATH: "${CI_PROJECT_DIR}/install"
+  USER: "meshroomBatcher"
+
+# Stage BUILD - Build package
+build:package:
+  stage: build
+  script:
+    - /s/apps/lin/rez/rez build -vic
+  tags:
+    - rez
+    - linux
+
+# Stage LINT - Check code quality
+lint:ruff:
+  stage: lint
+  needs:
+    - build:package
+  script:
+    - /s/apps/lin/rez/rez build -i
+    - /s/apps/lin/rez/rez test meshroomBatcher-develop ruff
+  tags:
+    - rez
+    - linux

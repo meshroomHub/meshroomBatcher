@@ -1,0 +1,80 @@
+# - pyproject.toml -
+
+[tool.black]
+# How many characters per line to allow.
+line-length = 120
+# Don't normalize string quotes or prefixes. (e.g: replace any ' with ")
+skip-string-normalization = false
+# Don't use trailing commas as a reason to split lines.
+skip-magic-trailing-comma = true
+
+[tool.pylint]
+fail-under = 8.5  # Fail under 8.5/10
+# Expected 79 characters per line but the max allowed is 120.
+max-line-length = 120
+disable = [
+    "C0103",  # Module name doesn't conform to snake_case naming style (invalid-name)
+    "C0114",  # Missing module docstring (missing-module-docstring) (custom header at Mikros)
+    "R0801",  # Similar lines in 2 files
+    "R1725",  # Consider using Python 3 style super() without arguments
+    "R0205",  # Class 'Foo' inherits from object, can be safely removed from bases in python3 (useless-object-inheritance)
+    "I1101",  #
+    "W0107",  # Unnecessary pass statement (unnecessary-pass)
+    "W1203",  # Use lazy % formatting in logging functions (logging-fstring-interpolation)
+    "E0110",  # Abstract class 'Foo' with abstract methods instantiated (abstract-class-instantiated)
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "W", "C", "R", "N"]
+
+ignore = [
+    "N802", "N803", "N806",  # C0103 - Module name doesn't conform to snake_case naming style (invalid-name)
+    "D100",  # C0114 - missing-module-docstring
+    "UP004",  # R0205 - useless-object-inheritance
+    "PIE790",  # W0107 - unnecessary-pass
+    "G004",  # W1203 - logging-fstring-interpolation
+    "RET504",  # Unnecessary assignments
+    "RET505",  # Unnecessary
+    "E701",    # Multiple statements on one line e.g. if test: print("test")
+    "N812",    
+]
+
+[tool.coverage.run]
+relative_files = true
+omit = [
+    # omit all files tests
+    "*/tests/*",
+    "*/abstracts/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.paths]
+source = [
+    "python/",
+    "tests/",
+]
+
+[tool.coverage.report]
+skip_covered = true
+skip_empty = true
+exclude_lines = [
+    "pragma: no cover",
+    # Skip any pass lines such as may be used with @abstractmethod
+    "pass",
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
