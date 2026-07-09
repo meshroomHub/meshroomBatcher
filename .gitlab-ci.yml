@@ -6,6 +6,7 @@ stages:
 variables:
   REZ_LOCAL_PACKAGES_PATH: "${CI_PROJECT_DIR}/install"
   USER: "meshroomBatcher"
+  GITLAB_CI: "true"
 
 # Stage BUILD - Build package
 build:package:
