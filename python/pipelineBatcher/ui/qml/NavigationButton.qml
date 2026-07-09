@@ -1,4 +1,3 @@
-// NavigationButton.qml
 // Component used to align text and icon in a button 
 
 import QtQuick 2.15
@@ -14,6 +13,7 @@ Button {
     property string navIconPosition: "right"  // "left" or "right"
     property int navIconSize: font.pixelSize + 2
     property int navSpacing: 6
+    property color textColor: Material.foreground
 
     contentItem: Row {
         spacing: root.navSpacing
@@ -31,6 +31,7 @@ Button {
             visible: root.text !== ""
             text: root.text
             font: root.font
+            color: root.textColor
             anchors.verticalCenter: parent.verticalCenter
         }
 
