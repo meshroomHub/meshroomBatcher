@@ -61,7 +61,7 @@ Rectangle {
         Rectangle {
             width: 48; height: 48
             radius: 8
-            color: _entityColor(templateModelData.input_entity_type)
+            color: EntityColors.entityColor(templateModelData.input_entity_type)
 
             Label {
                 anchors.centerIn: parent
@@ -100,7 +100,7 @@ Rectangle {
             height: 22
             width: entityTypeLabel.implicitWidth + 16
             radius: 11
-            color: _entityColor(templateModelData.input_entity_type)
+            color: EntityColors.entityColor(templateModelData.input_entity_type)
             opacity: 0.85
 
             Label {
@@ -118,18 +118,6 @@ Rectangle {
                     + " param(s)"
             font.pixelSize: 11
             color: "#888"
-        }
-    }
-
-    // --- Helpers ---
-    // TODO : move to a specific Colors.qml file (make sure it works with meshroom Colors.qml)
-    function _entityColor(entityType) {
-        switch ((entityType || "").toLowerCase()) {
-            case "shot":     return "#1565C0"
-            case "asset":    return "#6A1B9A"
-            case "sequence": return "#00695C"
-            case "version":  return "#BF360C"
-            default:         return "#424242"
         }
     }
 }
