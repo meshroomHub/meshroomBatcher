@@ -49,6 +49,6 @@ class TestTemplateHelper:
         }
         for nodeInstance, paramName in params.keys():
             paraminfo = TplHelper.getMgParameterInfo(createSceneTemplateMg, nodeInstance, paramName)
-            assert set(paraminfo.keys()) == {"type", "default", "choices"}
+            assert set(paraminfo.keys()) == {"type", "default", "choices", "node", "paramName"}
             expectedType = params[(nodeInstance, paramName)]
             assert paraminfo["type"] == expectedType
