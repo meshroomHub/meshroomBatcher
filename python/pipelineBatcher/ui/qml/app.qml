@@ -31,6 +31,38 @@ ApplicationWindow {
 
             Material.background: "#0e1b64"
 
+            Switch {
+                Layout.fillHeight: true
+                implicitWidth: 80  // Fix the width to avoid moving other components on animation
+                indicator.scale: 0.7  // Make the switch smaller
+
+                text: root.darkTheme ? MaterialIcons.dark_mode : MaterialIcons.light_mode
+                checked: !root.darkTheme
+                onClicked: root.darkTheme = !root.darkTheme
+
+                font.pixelSize: 20
+                leftPadding: 20
+
+                contentItem: Text {
+                    text: parent.text
+                    font: parent.font
+                    color: root.darkTheme ? "#ccc" : "#fff"
+                    verticalAlignment: Text.AlignVCenter
+                    // Fine tuned padding
+                    topPadding: 5
+                    // Switch the icon from left to right
+                    leftPadding: root.darkTheme ? parent.width - width - 45 : parent.indicator.width  - 5
+                    Behavior on leftPadding {
+                        NumberAnimation {
+                            duration: 250
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
+                }
+            }
+
+            Item { Layout.fillWidth: true }  // Spacer
+
             Label {
                 text: {
                     switch (stack.currentIndex) {
@@ -46,7 +78,7 @@ ApplicationWindow {
                 font.weight: Font.Medium
             }
 
-            Item { Layout.fillWidth: true }
+            Item { Layout.fillWidth: true }  // Spacer
 
             // Step indicators
             Repeater {
