@@ -22,7 +22,6 @@ except ImportError:
 
 # ========== Meshroom imports ==========
 import meshroom
-from meshroom.api import registerQmlSource
 from meshroom.ui.extensions import QmlExtensions
 from meshroom.ui.components.clipboard import ClipboardHelper
 from meshroom.ui.components.filepath import FilepathHelper
@@ -100,7 +99,7 @@ class PipelineBatcherApp:
         # Register QML import paths
         if MESHROOM_QML_DIR.is_dir():
             engine.addImportPath(str(MESHROOM_QML_DIR))
-        registerQmlSource(folder=QML_DIR, name="PipelineBatcher", major=1, minor=0)
+        QmlExtensions.registerQmlModule(folder=QML_DIR, name="PipelineBatcher", major=1, minor=0)
         QmlExtensions.registerSources(engine)
 
         engine.rootContext().setContextProperty("pipelineBatcherBackend", self._backend)

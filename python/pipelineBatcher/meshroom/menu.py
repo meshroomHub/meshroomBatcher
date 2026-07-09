@@ -8,13 +8,13 @@ import logging
 from pathlib import Path
 
 # ========== External libraries ==========
-# from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton
 from PySide6.QtCore import QObject
 from PySide6.QtQml import QQmlComponent
 from PySide6.QtCore import QUrl
 
 # ========== Meshroom imports ==========
-from meshroom.api import register_menu, Menu, MenuCallback, registerQmlSource
+from meshroom.ui.menu import MeshroomMenuManager, Menu, MenuCallback
+from meshroom.ui.extensions import QmlExtensions
 
 # ========== Imports from current package ==========
 from pipelineBatcher.ui import app as BatcherUI
@@ -27,7 +27,7 @@ QML_DIR = Path(__file__).parent.parent / "ui" / "qml"
 # Register QML folder
 # 
 
-registerQmlSource(
+QmlExtensions.registerQmlModule(
     folder=QML_DIR,
     name="PipelineBatcher",
     major=1,
@@ -107,4 +107,4 @@ batcher_menu.addButton(
     shortcut="Ctrl+Shift+B",
 )
 
-register_menu(batcher_menu)
+MeshroomMenuManager.registerMenu(batcher_menu)
