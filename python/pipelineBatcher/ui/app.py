@@ -8,8 +8,6 @@ import logging
 import functools
 import traceback
 from enum import Enum
-from typing import Any
-from dataclasses import dataclass, field
 
 # ========== External libraries ==========
 from PySide6.QtCore import (
@@ -32,27 +30,6 @@ class PipelineBatcherPages(Enum):
     PAGE_TEMPLATE  = 0
     PAGE_ENTITY    = 1
     PAGE_PARAMETER = 2
-
-
-@dataclass
-class TemplateCreationState:
-    entity_type: str = ""
-    selected_template: dict | None = None
-    selected_entities: list[str] = field(default_factory=list)
-    parameters: dict[str, Any] = field(default_factory=dict)
-
-    def reset(self):
-        self.entity_type = ""
-        self.selected_template = None
-        self.selected_entities.clear()
-        self.parameters.clear()
-
-    @property
-    def needs_parameter_page(self) -> bool:
-        return bool(
-            self.selected_template
-            and self.selected_template.get("parameters")
-        )
 
 
 def busy_slot(message: str = ""):
@@ -93,12 +70,12 @@ class PipelineBatcherBackend(QObject):
         self._busy  = False
         self._busyMessage = ""
         self._page  = PipelineBatcherPages.PAGE_TEMPLATE
-        self._state = TemplateCreationState()
+        self._state = utilities.TemplateCreationState()
     
     def reset(self):
         self._busyMessage = ""
         self._page  = PipelineBatcherPages.PAGE_TEMPLATE
-        self._state = TemplateCreationState()
+        self._state = utilities.TemplateCreationState()
 
     def _get_busy(self) -> bool:
         return self._busy
@@ -152,9 +129,10 @@ class PipelineBatcherBackend(QObject):
             self._page = page
             self.pageChanged.emit(page.value)
 
+    @busy_slot("Instanciate pipeline")
     def _launch(self):
         try:
-            self.instantiate_pipelines()
+            utilities.instantiate_pipelines(self._state)
         except Exception as exc:  # noqa: BLE001
             self.errorOccurred.emit(str(exc))
 
