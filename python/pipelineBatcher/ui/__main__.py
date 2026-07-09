@@ -32,6 +32,9 @@ from meshroom.ui.utils import QFileSystemWatcher
 from pipelineBatcher.ui.app import PipelineBatcherBackend
 
 
+meshroom.core.initNodes()
+
+
 # Disable QML disk cache so hot reload always picks up source changes
 os.environ["QML_DISABLE_DISK_CACHE"] = "1"
 
