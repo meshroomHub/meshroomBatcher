@@ -9,17 +9,18 @@ from meshroom.api import register_menu, Menu, MenuCallback
 
 class OpenTemplateBatcher(MenuCallback):
     def __call__(self, menu, app, **kwargs):
-        pass
+# 
+# Create the menu
+# 
 
+batcher_menu = Menu("Batcher", tooltip="Meshroom production tools")
 
-mill_menu = Menu("Mill", tooltip="Meshroom production tools")
-
-mill_menu.addButton(
+batcher_menu.addButton(
     "batcher",
-    label="Template Batcher",
-    callback=OpenTemplateBatcher(),
+    label="Pipeline Batcher UI",
+    callback=OpenPipelineBatcher(),
     tooltip="Open the TemplateBatcher UI.",
-    shortcut="Ctrl+Alt+T",
+    shortcut="Ctrl+Shift+B",
 )
 
-register_menu(mill_menu)
+register_menu(batcher_menu)

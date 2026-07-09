@@ -1,0 +1,13 @@
+{
+    "name": "Create Scene",
+    "description": "Create a scene from a shot.",
+    "template": "{RESOURCES}/batchPipelines/create_scene.mg",
+    "input_entity_type": "Shot",
+    "input_entity_params": {
+        "code": "ShotCode_1:string"
+    },
+    "parameters": [
+        "InputString_1:string",
+        "InputInt_1:integer"
+    ]
+}
