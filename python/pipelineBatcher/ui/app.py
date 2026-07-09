@@ -36,11 +36,13 @@ class PipelineBatcherPages(Enum):
 
 @dataclass
 class TemplateCreationState:
+    entity_type: str = ""
     selected_template: dict | None = None
     selected_entities: list[str] = field(default_factory=list)
     parameters: dict[str, Any] = field(default_factory=dict)
 
     def reset(self):
+        self.entity_type = ""
         self.selected_template = None
         self.selected_entities.clear()
         self.parameters.clear()
@@ -174,8 +176,8 @@ class PipelineBatcherBackend(QObject):
         tpl = self._templatesIndex.get(index)
         self._state.selected_template = tpl
         # Notify QML so EntityPage can set its entityType before the page transition
-        entity_type = tpl.get("input_entity_type", "") if tpl else ""
-        self.templateSelected.emit(entity_type)
+        self._state.entity_type = tpl.get("input_entity_type", "") if tpl else ""
+        self.templateSelected.emit(self._state.entity_type)
         self.next()
 
     @busy_slot("Fetching entities")
@@ -267,5 +269,7 @@ class PipelineBatcherBackend(QObject):
     pageChanged = Signal(int)
     templateSelected = Signal(str)   # emits input_entity_type after template selection
     errorOccurred = Signal(str)
+    page = Property(int, lambda self: self._page.value, constant=True)
+    entityType = Property(str, lambda self: self._state.entity_type, constant=True)
     busy = Property(bool, _get_busy, _set_busy, notify=busyChanged)
     busyMessage = Property(str, _get_busy_message, notify=busyChanged)

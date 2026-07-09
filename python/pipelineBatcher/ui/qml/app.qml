@@ -193,6 +193,14 @@ ApplicationWindow {
         }
     }
 
+    Component.onCompleted: {
+        var page = pipelineBatcherBackend.page
+        if (page > 0) { 
+            entityPage.entityType = pipelineBatcherBackend.entityType
+        }
+        stack.currentIndex = page
+    }
+
     // --- Connections ---
     Connections {
         target: pipelineBatcherBackend

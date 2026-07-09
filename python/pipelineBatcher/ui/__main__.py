@@ -137,9 +137,6 @@ class PipelineBatcherApp:
                 obj.resize(old_size)
             obj.show()
         
-        # Reset status
-        self._backend.reset()
-
         self._engine.objectCreated.connect(on_object_created)
         self._engine.load(QUrl.fromLocalFile(str(QML_DIR / "app.qml")))
         self._engine.objectCreated.disconnect(on_object_created)
