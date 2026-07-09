@@ -69,7 +69,7 @@ ApplicationWindow {
                         case 0: return "Choose Template"
                         case 1: return "Select Entities"
                         case 2: return "Set Parameters"
-                        case 3: return "Done"
+                        case 3: return "Instanciation"
                         default: return ""
                     }
                 }
@@ -83,7 +83,7 @@ ApplicationWindow {
             // Step indicators
             Repeater {
                 id: stepsIndicator
-                model: ["Template", "Entities", "Parameters", "Done"]
+                model: ["Template", "Entities", "Parameters", "Instanciation"]
                 delegate: RowLayout {
                     spacing: 4
 
@@ -125,7 +125,7 @@ ApplicationWindow {
     StackLayout {
         id: stack
         anchors.fill: parent
-        currentIndex: 0  // driven by onPageChanged
+        currentIndex: 0
 
         TemplatePage {
             id: templatePage
@@ -139,47 +139,8 @@ ApplicationWindow {
             id: parameterPage
         }
 
-        Item {
-            id: donePage
-
-            ColumnLayout {
-                width: parent.width
-                anchors.fill: parent
-                anchors.margins: 20
-                spacing: 12
-
-                Label {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    text: "You are done !"
-                    font.pixelSize: 20
-                    color: "#aaa"
-                }
-
-                // Bottom bar
-                RowLayout {
-                    Layout.fillWidth: true
-
-                    Item { Layout.fillWidth: true }
-
-                    NavigationButton {
-                        text: "Close the UI"
-                        navIcon: MaterialIcons.celebration
-                        Material.background: hovered ? "#43d668" : "#2a67ad" 
-                        Material.foreground: hovered ? "#424242" : "#e0e0e0"
-                        scale: hovered ? 1.25 : 1.2
-                        Behavior on scale {
-                            NumberAnimation { duration: 100 }
-                        }
-                        highlighted: hovered
-                        onClicked: pipelineBatcherBackend.next()
-                    }
-
-                    Item { Layout.fillWidth: true }
-                }
-            }
+        InstanciationPage {
+            id: instanciationPage
         }
 
         function displayPageMessage() {

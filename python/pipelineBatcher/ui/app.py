@@ -30,7 +30,7 @@ class PipelineBatcherPages(Enum):
     PAGE_TEMPLATE  = 0
     PAGE_ENTITY    = 1
     PAGE_PARAMETER = 2
-    PAGE_DONE = 3
+    PAGE_FINAL     = 3
 
 
 def busy_slot(message: str = ""):
@@ -72,6 +72,7 @@ class PipelineBatcherBackend(QObject):
         self._busyMessage = ""
         self._page  = PipelineBatcherPages.PAGE_TEMPLATE
         self._state = utilities.TemplateCreationState()
+        self._instanciator = None
     
     def reset(self):
         self._busyMessage = ""
@@ -103,17 +104,19 @@ class PipelineBatcherBackend(QObject):
     @Slot()
     def next(self):
         nextIndex = self._page.value + 1
-        if nextIndex == PipelineBatcherPages.PAGE_DONE.value+1:
+        if nextIndex == PipelineBatcherPages.PAGE_FINAL.value+1:
             self.closeRequested.emit()
             return
         if nextIndex not in map(lambda x: x.value, PipelineBatcherPages):
             logging.warning(f"Cannot go to page {nextIndex} : unknown page")
             return
         nextPage = PipelineBatcherPages(nextIndex)
-        if nextPage == PipelineBatcherPages.PAGE_DONE:
-            self._launch()
+        if nextPage == PipelineBatcherPages.PAGE_FINAL:
+            self._prepareInstanciator()
         if nextPage == PipelineBatcherPages.PAGE_PARAMETER and not self.hasParametersPage():
-            self.next()  # Go to PAGE_DONE -> this will call launch
+            # Skip parameter page, jump straight to PAGE_FINAL
+            self._page = nextPage
+            self.next()
         else:
             self._go_to(nextPage)
 
@@ -136,17 +139,19 @@ class PipelineBatcherBackend(QObject):
             self._page = page
             self.pageChanged.emit(page.value)
 
-    @busy_slot("Instanciate pipeline")
-    def _launch(self):
+    @busy_slot("Build pipeline instanciator")
+    def _prepareInstanciator(self):
         try:
-            utilities.instantiate_pipelines(self._state)
-        except Exception as exc:  # noqa: BLE001
+            self._instanciator = utilities.build_instanciator(self._app, self._state)
+            self.instanciatorChanged.emit()
+        except Exception as exc:
+            logging.error(exc)
             self.errorOccurred.emit(str(exc))
 
     def getSelectedTemplatePath(self):
         return self._state.selected_template.get("template", "") 
 
-    def getSelectedTemplateparams(self):
+    def getSelectedTemplateParams(self):
         return self._state.selected_template.get("parameters", "") 
 
     # --- Async slots : use busy_slot to make sure the UI displays the busy overlay ---
@@ -231,23 +236,23 @@ class PipelineBatcherBackend(QObject):
             logging.warning(f"getParamInfo error: {exc}")
             return json.dumps({"type": "string", "default": "", "choices": []})
 
-    @busy_slot("Set parameters")
+    # @busy_slot("Set parameters")
     @Slot(str)
     def setParameters(self, params_json: str):
         """Receive the parameter values filled on ParameterPage."""
         self._state.parameters = json.loads(params_json)
-        self.next()
 
     # --- Qt Signals and Properties ---
-
+    pageChanged = Signal(int)
+    page = Property(int, lambda self: self._page.value, constant=True)
+    errorOccurred = Signal(str)
     closeRequested = Signal()
     busyChanged = Signal(bool)
-    busyMessageChanged = Signal(str)
-    pageChanged = Signal(int)
-    templateSelected = Signal(str)   # emits input_entity_type after template selection
-    errorOccurred = Signal(str)
-    page = Property(int, lambda self: self._page.value, constant=True)
-    entityType = Property(str, lambda self: self._state.entity_type, constant=True)
     busy = Property(bool, _get_busy, _set_busy, notify=busyChanged)
+    busyMessageChanged = Signal(str)
     busyMessage = Property(str, _get_busy_message, notify=busyChanged)
-    templateParameters = Property('QVariantList', getSelectedTemplateparams, constant=True)
+    templateSelected = Signal(str)   # emits input_entity_type after template selection
+    entityType = Property(str, lambda self: self._state.entity_type, constant=True)
+    templateParameters = Property('QVariantList', getSelectedTemplateParams, constant=True)
+    instanciatorChanged = Signal()
+    instanciator = Property(QObject, lambda self: self._instanciator, notify=instanciatorChanged)
