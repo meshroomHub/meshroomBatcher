@@ -5,8 +5,31 @@ Entities Helper for the Pipeline Batcher UI
 # ========== Py standard lib imports ==========
 import logging
 from typing import Any
+from pathlib import Path
+from collections import OrderedDict
+from types import SimpleNamespace
+
 
 # ========== Imports from current package ==========
+
+
+CachedEntityById = {}  # id: CachedEntity
+
+class CachedEntity(SimpleNamespace):
+    def __init__(self, entity_type, entity_name, **kwargs):
+        super().__init__(**kwargs)
+        self.entity_type = entity_type
+        self.entity_name = entity_name
+        if "id" not in kwargs:
+            self.id = f"{entity_type.lower()}.{entity_name}"
+        CachedEntityById[self.id] = self  # Keep the new entity in cache
+
+    def __contains__(self, item):
+        return item in self.__dict__
+
+
+def get_entity(entity_id: str) -> CachedEntity:
+    return CachedEntityById.get(entity_id)
 
 
 class EntityProvider:
