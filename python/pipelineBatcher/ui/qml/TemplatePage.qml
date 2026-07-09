@@ -3,6 +3,8 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 
+import MaterialIcons 2.2
+
 Item {
     id: root
 
@@ -67,20 +69,21 @@ Item {
         RowLayout {
             Layout.fillWidth: true
 
-            Button {
+            NavigationButton {
                 text: "Cancel"
                 flat: true
                 onClicked: pipelineBatcherBackend.cancel()
             }
             Item { Layout.fillWidth: true }
-            Button {
-                text: "Next ›"
+            NavigationButton {
+                text: "Next"
+                navIcon: MaterialIcons.chevron_right
+                navIconPosition: "right"
                 Material.accent: Material.Blue
                 highlighted: true
                 enabled: selectedIndex >= 0
                 onClicked: {
                     pipelineBatcherBackend.selectTemplate(templates[selectedIndex]["index"])
-                    pipelineBatcherBackend.next()
                 }
             }
         }
@@ -103,7 +106,6 @@ Item {
             onConfirmed: (idx) => {
                 root.selectedIndex = idx
                 pipelineBatcherBackend.selectTemplate(templates[idx]["index"])
-                pipelineBatcherBackend.next()
             }
         }
     }

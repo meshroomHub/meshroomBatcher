@@ -22,14 +22,15 @@ Rectangle {
     border.width: selectedIndex === templateIndex ? 2 : 0
 
     Behavior on color {
-        ColorAnimation { duration: 120 }
+        ColorAnimation { duration: 250 }
     }
     Behavior on border.color {
-        ColorAnimation { duration: 120 }
+        ColorAnimation { duration: 300 }
     }
 
     // Hover state
     property bool hovered: false
+
     Rectangle {
         anchors.fill: parent
         radius: parent.radius
