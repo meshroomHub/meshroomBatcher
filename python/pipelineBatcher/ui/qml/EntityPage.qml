@@ -87,10 +87,12 @@ Item {
     }
 
     function _toggleAll(select) {
-        var updated = {}
+        var updated = Object.assign({}, checkedIds)
         if (select) {
             for (var i = 0; i < entityList.length; i++)
                 updated[entityList[i].id] = true
+        } else {
+            updated = {}
         }
         checkedIds = updated
     }
@@ -140,7 +142,7 @@ Item {
             Item { Layout.fillWidth: true }
 
             Button {
-                text: "Select all"  // Warning : deselects items from other group !!
+                text: "Select all"
                 flat: true
                 font.pixelSize: 12
                 enabled: entityList.length > 0
