@@ -14,18 +14,26 @@ Item {
 
     signal groupSelected(string id)
 
-    property bool expanded: _subtreeContains(nodeData, activeGroupId)
+    property var manualExpanded: null
+    property bool expanded: manualExpanded !== null ? manualExpanded : _subtreeContains(nodeData, activeGroupId)
 
     width:  parent ? parent.width : 200
     height: nodeRow.height + (expanded && hasChildren ? childrenColumn.implicitHeight : 0)
 
-    readonly property bool hasChildren: Array.isArray(nodeData.children) && nodeData.children.length > 0
+    function _isArrayLike(v) {
+        return !!v && typeof v.length === "number"
+    }
+
+    readonly property bool hasChildren: root._isArrayLike(nodeData.children) && nodeData.children.length > 0
     readonly property bool isActive:    !!nodeData.id && nodeData.id === activeGroupId
+    readonly property int  entityCount: nodeData.entityCount !== undefined
+                                            ? nodeData.entityCount
+                                            : (root._isArrayLike(nodeData.children) ? nodeData.children.length : 0)
 
     function _subtreeContains(node, id) {
         if (!node || !node.id) return false
         if (node.id === id) return true
-        if (!Array.isArray(node.children)) return false
+        if (!_isArrayLike(node.children)) return false
         for (var i = 0; i < node.children.length; i++) {
             if (_subtreeContains(node.children[i], id)) return true
         }
@@ -75,7 +83,7 @@ Item {
                     visible: root.hasChildren
                     text: root.expanded ? MaterialIcons.arrow_drop_down : MaterialIcons.arrow_right
                     font.pixelSize: 10
-                    color: root.textColor
+                    color: Qt.lighter(root.textColor, 1.5)
                 }
             }
 
@@ -83,7 +91,7 @@ Item {
                 visible: !!nodeData.icon
                 text:    nodeData.icon || ""
                 font.pixelSize: 14
-                color: isActive ? "white" : root.textColor
+                color: isActive ? "white" : Qt.lighter(root.textColor, 1.5)
             }
 
             Label {
@@ -96,7 +104,7 @@ Item {
             }
 
             Rectangle {
-                visible: root.hasChildren
+                visible: root.entityCount > 0
                 height: 18
                 width:  childCountLabel.implicitWidth + 10
                 radius: 9
@@ -104,9 +112,9 @@ Item {
                 Label {
                     id: childCountLabel
                     anchors.centerIn: parent
-                    text: Array.isArray(nodeData.children) ? nodeData.children.length : 0
+                    text: root.entityCount
                     font.pixelSize: 10
-                    color: root.textColor
+                    color: Qt.lighter(root.textColor, 1.5)
                 }
             }
         }
@@ -117,7 +125,7 @@ Item {
             hoverEnabled: true
             onClicked: {
                 if (root.hasChildren)
-                    root.expanded = !root.expanded
+                    root.manualExpanded = !root.expanded
                 if (nodeData.id)
                     root.groupSelected(nodeData.id)
             }
@@ -137,6 +145,7 @@ Item {
 
             delegate: Loader {
                 width: childrenColumn.width
+                height: item ? item.height : 0
                 // Uses runtime relative loading to resolve static recursion limits
                 source: "EntityTreeNode.qml"
 

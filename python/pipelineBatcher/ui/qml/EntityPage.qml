@@ -40,6 +40,30 @@ Item {
 
     // --- Data loading ---
 
+    function _isArrayLike(v) {
+        return !!v && typeof v.length === "number"
+    }
+
+    // Keep only items that have children.
+    function _pruneLeaves(items) {
+        var out = []
+        if (!_isArrayLike(items)) return out
+        for (var i = 0; i < items.length; i++) {
+            var n = items[i]
+            if (_isArrayLike(n.children) && n.children.length > 0) {
+                var prunedChildren = _pruneLeaves(n.children)
+                out.push({
+                    id: n.id,
+                    label: n.label,
+                    icon: n.icon,
+                    children: prunedChildren,
+                    entityCount: n.children.length
+                })
+            }
+        }
+        return out
+    }
+
     function _loadTree() {
         root.treeDataLoading = true
         checkedIds = {}
@@ -54,7 +78,8 @@ Item {
                 treeData = []
                 return
             }
-            treeData = JSON.parse(raw)
+            var parsedTree = JSON.parse(raw)
+            treeData = _pruneLeaves(parsedTree)
         } catch(e) {
             console.error("JSON.parse failed:", e)
             console.error("raw string was:", raw)
