@@ -62,7 +62,7 @@ Rectangle {
         Rectangle {
             width: 48; height: 48
             radius: 8
-            color: EntityColors.entityColor(templateModelData.input_entity_type)
+            color: TBColors.entityColor(templateModelData.input_entity_type)
 
             Label {
                 anchors.centerIn: parent
@@ -101,7 +101,7 @@ Rectangle {
             height: 22
             width: entityTypeLabel.implicitWidth + 16
             radius: 11
-            color: EntityColors.entityColor(templateModelData.input_entity_type)
+            color: TBColors.entityColor(templateModelData.input_entity_type)
             opacity: 0.85
 
             Label {
