@@ -58,7 +58,7 @@ ApplicationWindow {
                         }
                     }
 
-                    // Name fo the step
+                    // Name of the step
                     Label {
                         text: modelData
                         font.pixelSize: 11
@@ -82,23 +82,38 @@ ApplicationWindow {
     StackLayout {
         id: stack
         anchors.fill: parent
-        currentIndex: 0  // driven by onPageChange
+        currentIndex: 0  // driven by onPageChanged
 
         TemplatePage {
             id: templatePage
         }
-    }
 
-    Connections {
-        target: pipelineBatcherBackend
-        function onPageChanged(page) {
-            stack.currentIndex = page
+        EntityPage {
+            id: entityPage
         }
+
+        // TODO : ParameterPage placeholder
+        Item {
+            id: parameterPagePlaceholder
+        }
+
+        function displayPageMessage() {
+            if (currentIndex == 0)
+                statusMsg.show("Please select a template")
+            else if (currentIndex == 1)
+                statusMsg.show("Select entities")
+            else if (currentIndex == 2 && pipelineBatcherBackend.hasParametersPage())
+                statusMsg.show("Fill the required parameters")
+        }
+
+        onCurrentIndexChanged: displayPageMessage()
+        Component.onCompleted: displayPageMessage()
     }
 
     // --- Busy Overlay ---
     Rectangle {
         id: busyOverlay
+        parent: Overlay.overlay  // ← attach to the QML overlay layer
         anchors.fill: parent
         color: "#80000000"
         visible: false
@@ -120,24 +135,6 @@ ApplicationWindow {
                 font.pixelSize: 14
                 color: "white"
             }
-        }
-    }
-
-    // Show overlay when backend reports busy
-    Connections {
-        target: pipelineBatcherBackend
-
-        function onBusyChanged(busy) { 
-            busyOverlay.visible = busy
-            // if (busy)
-            //     busyOverlay.busyMessage = ...
-        }
-
-        function onErrorOccurred(msg) {
-            busyOverlay.visible = false
-            busyOverlay.busyMessage = msg
-            errorDialog.message = msg
-            errorDialog.open()
         }
     }
 
@@ -193,7 +190,32 @@ ApplicationWindow {
         }
     }
 
-    Component.onCompleted: {
-        statusMsg.show("Please select a template...")
+    // --- Connections ---
+    Connections {
+        target: pipelineBatcherBackend
+
+        function onPageChanged(page) {
+            stack.currentIndex = page
+        }
+
+        // Forward the selected template's entity type to EntityPage
+        function onTemplateSelected(entityType) {
+            entityPage.entityType = entityType
+        }
+
+        function onBusyChanged(busy) {
+            busyOverlay.visible = busy
+        }
+
+        function onBusyMessageChanged(message) {
+            busyOverlay.busyMessage = message
+        }
+
+        function onErrorOccurred(msg) {
+            busyOverlay.visible = false
+            busyOverlay.busyMessage = msg
+            errorDialog.message = msg
+            errorDialog.open()
+        }
     }
 }

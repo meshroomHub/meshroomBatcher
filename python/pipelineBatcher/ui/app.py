@@ -5,18 +5,26 @@ Python Backend of the Pipeline Batcher UI
 # ========== Py standard lib imports ==========
 import json
 import logging
-from dataclasses import dataclass, field
+import functools
 from enum import Enum
 from typing import Any
+from dataclasses import dataclass, field
 
 # ========== External libraries ==========
-from PySide6.QtCore import QObject, Slot, Signal
-
-# ========== Meshroom imports ==========
-from meshroom.common import Property
+from PySide6.QtCore import (
+    QCoreApplication, 
+    QObject, 
+    QEventLoop, 
+    QTimer, 
+    Slot, 
+    Signal, 
+    Property
+)
 
 # ========== Imports from current package ==========
+from pipelineBatcher.ui import utilities
 from pipelineBatcher.ui import templates as TemplatesHelper
+from pipelineBatcher.ui import entities as EntitiesHelper
 
 
 class PipelineBatcherPages(Enum):
@@ -24,7 +32,7 @@ class PipelineBatcherPages(Enum):
     PAGE_ENTITY    = 1
     PAGE_PARAMETER = 2
 
-    
+
 @dataclass
 class TemplateCreationState:
     selected_template: dict | None = None
@@ -44,6 +52,35 @@ class TemplateCreationState:
         )
 
 
+def busy_slot(message: str = ""):
+    """
+    Decorator that shows the busy overlay for one frame before executing
+    the blocking slot.
+    """
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(self, *args, **kwargs):
+            self._busyMessage = message
+            self.busyMessageChanged.emit(message)
+            self._set_busy(True)
+            # Let the UI render one frame
+            loop = QEventLoop()
+            QTimer.singleShot(50, loop.quit)
+            loop.exec()
+            # Now run the blocking work
+            try:
+                return fn(self, *args, **kwargs)
+            except Exception as exc:
+                logging.error(f"{fn.__name__} error: {exc}")
+                self.errorOccurred.emit(str(exc))
+            finally:
+                self._busyMessage = ""
+                self.busyMessageChanged.emit(message)
+                self._set_busy(False)
+        return wrapper
+    return decorator
+
+
 class PipelineBatcherBackend(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -51,6 +88,7 @@ class PipelineBatcherBackend(QObject):
         self._templatesIndex = TemplatesHelper.buildTemplatesIndex(self._templates_dir)
         self._app   = parent
         self._busy  = False
+        self._busyMessage = ""
         self._page  = PipelineBatcherPages.PAGE_TEMPLATE
         self._state = TemplateCreationState()
 
@@ -61,8 +99,20 @@ class PipelineBatcherBackend(QObject):
         if self._busy != value:
             self._busy = value
             self.busyChanged.emit(value)
-    
+            self.forceUpdate()
+                
+    def _get_busy_message(self) -> str:
+        return self._busyMessage
+
+    @staticmethod
+    def forceUpdate():
+        QCoreApplication.processEvents()
+
     # --- Navigation ---
+    
+    @Slot(result=bool)
+    def hasParametersPage(self):
+        return self._state.needs_parameter_page
 
     @Slot()
     def next(self):
@@ -72,7 +122,7 @@ class PipelineBatcherBackend(QObject):
             self._launch()
             return
         nextPage = PipelineBatcherPages(nextIndex)
-        if nextPage == PipelineBatcherPages.PAGE_PARAMETER and not self._state.needs_parameter_page:
+        if nextPage == PipelineBatcherPages.PAGE_PARAMETER and not self.hasParametersPage():
             self._launch()
         else:
             self._go_to(nextPage)
@@ -81,7 +131,7 @@ class PipelineBatcherBackend(QObject):
     def back(self):
         previousIndex = self._page.value - 1
         if previousIndex in map(lambda x: x.value, PipelineBatcherPages):
-            self._go_to(self.PipelineBatcherPages(previousIndex))
+            self._go_to(PipelineBatcherPages(previousIndex))
 
     @Slot()
     def cancel(self):
@@ -93,15 +143,12 @@ class PipelineBatcherBackend(QObject):
         if self._page != page:
             self._page = page
             self.pageChanged.emit(page.value)
-    
+
     def _launch(self):
-        self._set_busy(True)
         try:
             self.instantiate_pipelines()
         except Exception as exc:  # noqa: BLE001
             self.errorOccurred.emit(str(exc))
-        finally:
-            self._set_busy(False)
 
     def instantiate_pipelines(self):
         state = self._state
@@ -118,12 +165,14 @@ class PipelineBatcherBackend(QObject):
 
     # --- Exchange infos ---
 
+    @busy_slot("Fetching templates")
     @Slot(result=str)
     def listTemplates(self) -> str:
         """Return JSON array of template descriptors."""
         templates = [self._templatesIndex[i] for i in sorted(self._templatesIndex.keys())]
         return json.dumps(templates, ensure_ascii=False)
 
+    @busy_slot("Select the chosen template")
     @Slot(int)
     def selectTemplate(self, index):
         """Receive the template chosen on TemplatePage and advance."""
@@ -131,12 +180,16 @@ class PipelineBatcherBackend(QObject):
         self._state.reset()
         tpl = self._templatesIndex.get(index)
         self._state.selected_template = tpl
+        # Notify QML so EntityPage can set its entityType before the page transition
+        entity_type = tpl.get("input_entity_type", "") if tpl else ""
+        self.templateSelected.emit(entity_type)
         self.next()
 
     @Slot(str)
     def setSelectedEntities(self, entities_json: str):
         """Receive the entity ids checked on EntityPage (no auto-advance)."""
         self._state.selected_entities = json.loads(entities_json)
+        self.next()
 
     @Slot(str)
     def setParameters(self, params_json: str):
@@ -145,7 +198,10 @@ class PipelineBatcherBackend(QObject):
 
     # --- Qt Signals and Properties ---
 
-    busyChanged    = Signal(bool)
+    busyChanged = Signal(bool)
+    busyMessageChanged = Signal(str)
+    pageChanged = Signal(int)
+    templateSelected = Signal(str)   # emits input_entity_type after template selection
+    errorOccurred = Signal(str)
     busy = Property(bool, _get_busy, _set_busy, notify=busyChanged)
-    pageChanged    = Signal(int)
-    errorOccurred  = Signal(str)
+    busyMessage = Property(str, _get_busy_message, notify=busyChanged)
