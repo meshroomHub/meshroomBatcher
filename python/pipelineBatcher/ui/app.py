@@ -18,11 +18,8 @@ class PipelineBatcherBackend(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._templates_dir = TemplatesHelper.get_templates_dir()
-        self._app = parent
-        self._busy = False
-
-    @property
-    def busy(self):
+        self._templatesIndex = TemplatesHelper.buildTemplatesIndex(self._templates_dir)
+        self._app   = parent
         return self._busy
     
     @busy.setter
@@ -33,8 +30,8 @@ class PipelineBatcherBackend(QObject):
 
     @Slot(result=str)
     def listTemplates(self) -> str:
-        """ Return JSON array of template descriptors. """
-        templates = TemplatesHelper.list_templates(self._templates_dir)
+        """Return JSON array of template descriptors."""
+        templates = [self._templatesIndex[i] for i in sorted(self._templatesIndex.keys())]
         return json.dumps(templates, ensure_ascii=False)
 
     busyChanged = Signal(bool)

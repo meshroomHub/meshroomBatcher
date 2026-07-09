@@ -28,7 +28,7 @@ MR_TYPE_MAP = {
 }
 
 
-def get_templates_dir():
+def get_templates_dir() -> str:
     """ Get the folder with the templates inside
     """
     resources = os.getenv("MR_VFX_PIPELINE_RESOURCES")
@@ -36,7 +36,9 @@ def get_templates_dir():
     return str(templatesFolder)
 
 
-def remap_template_path(path: str):
+def remap_template_path(path: str) -> str:
+    """ Used to replace env vars inside the path
+    """
     env = {
         "RESOURCES": os.getenv("MR_VFX_PIPELINE_RESOURCES")
     }
@@ -47,19 +49,19 @@ def remap_template_path(path: str):
     return path
 
 
-def list_templates(templates_dir: str) -> list[dict]:
+def list_templates(templatesFolder: str) -> list[dict]:
     """
     Scan templates_dir for JSON files and return a list with the detected templates.
     """
     results = []
-    if not os.path.isdir(templates_dir):
-        logging.warning(f"Templates directory does not exist: {templates_dir}")
+    if not os.path.isdir(templatesFolder):
+        logging.warning(f"Templates directory does not exist: {templatesFolder}")
         return results
 
-    for tplName in sorted(os.listdir(templates_dir)):
+    for tplName in sorted(os.listdir(templatesFolder)):
         if not tplName.endswith(".json"):
             continue
-        tplPath = os.path.join(templates_dir, tplName)
+        tplPath = os.path.join(templatesFolder, tplName)
         try:
             with open(tplPath, "r") as f:
                 data = json.load(f)
@@ -80,8 +82,17 @@ def list_templates(templates_dir: str) -> list[dict]:
                 data["template"] = remap_template_path(data["template"])
                 results.append(data)
 
-    logging.info(f"Found {len(results)} template(s) in '{templates_dir}'")
+    logging.info(f"Found {len(results)} template(s) in '{templatesFolder}'")
     return results
+
+
+def buildTemplatesIndex(templatesFolder):
+    templatesIndex = {}
+    templates = list_templates(templatesFolder)
+    for i, tpl in enumerate(templates):
+        tpl["index"] = i
+        templatesIndex[i] = tpl
+    return templatesIndex
 
 
 def getMgParameterInfo(path: str, nodeInstance: str, paramName: str) -> dict:
