@@ -19,6 +19,7 @@ requires = [
 private_build_requires = ["cmake-3"]
 
 tests = {
+    # LINT
     "pylint": {
         "command": "pylint {root}/python/{name} --rcfile={root}/pyproject.toml",
         "requires": ["pylint-2.17"],
@@ -35,6 +36,20 @@ tests = {
         "command": "black {root}/python --config={root}/pyproject.toml",
         "requires": ["black-23.9"],
         "run_on": "explicit",
+    },
+    # TEST
+    "pytest": {
+        "command": (
+            "python -m pytest "
+            "--cov=pipelineBatcher "
+            "--cov-config={root}/.coveragerc "
+            "--cov-report=xml:coverage.xml "
+            "--cov-report=html:htmlcov "
+            "--cov-report=term "
+            "-v "
+            "{root}/tests/"
+        ),
+        "requires": ["python-3.11", "pytest-8.2", "pytestCov"],
     }
 }
 

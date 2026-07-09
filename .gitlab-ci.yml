@@ -1,5 +1,6 @@
 stages:
   - build
+  - test
   - lint
 
 variables:
@@ -11,6 +12,28 @@ build:package:
   stage: build
   script:
     - /s/apps/lin/rez/rez build -vic
+  tags:
+    - rez
+    - linux
+
+# Stage TEST - launch python tests
+test:pytest:
+  stage: test
+  needs:
+    - build:package
+  script:
+    - /s/apps/lin/rez/rez build -i
+    - /s/apps/lin/rez/rez test meshroomBatcher-develop pytest
+  coverage: '/TOTAL.*\s+(\d+%)$/'   # Regex to parse coverage % from output
+  artifacts:
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - coverage.xml
+    expire_in: 1 week
   tags:
     - rez
     - linux

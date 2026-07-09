@@ -1,0 +1,14 @@
+[run]
+source =
+    pipelineBatcher
+
+omit =
+    */tests/*
+    */__pycache__/*
+    # Meshroom plugins/nodes are not tested, only common code
+    */meshroom/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
