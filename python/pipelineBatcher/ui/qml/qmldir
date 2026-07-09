@@ -7,3 +7,5 @@ EntityPage             1.0 EntityPage.qml
 EntityDelegate         1.0 EntityDelegate.qml
 EntityTreeNode         1.0 EntityTreeNode.qml
 EntitySelectionSummary 1.0 EntitySelectionSummary.qml
+ParameterPage          1.0 ParameterPage.qml
+ParameterDelegate      1.0 ParameterDelegate.qml

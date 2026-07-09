@@ -101,6 +101,10 @@ ApplicationWindow {
             id: entityPage
         }
 
+        ParameterPage {
+            id: parameterPage
+        }
+
         // TODO : ParameterPage placeholder
         Item {
             id: parameterPagePlaceholder
