@@ -64,10 +64,8 @@ with scope("config") as config:
 
 def commands():
     env.PYTHONPATH.append("{this.root}/python")
-    # Production Pipelines
-    env.MESHROOM_PIPELINE_TEMPLATES_PATH.append("{this.root}/resources/pipelines")
-
+    env.PIPELINE_RESOURCES.append("{this.root}/resources")
     # Menu
     env.MESHROOM_PLUGINS_PATH.append("{this.root}/python/pipelineBatcher")
-
+    # Alias
     alias("templateBatcherUI", "python {this.root}/python/pipelineBatcher/ui")

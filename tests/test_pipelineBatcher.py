@@ -12,7 +12,7 @@ class TestTemplateHelper:
     @classmethod
     def setup_class(cls):
         cls.__old_env = os.environ
-        os.environ["MR_VFX_PIPELINE_RESOURCES"] = str(TEST_RESOURCES)
+        os.environ["PIPELINE_RESOURCES"] = str(TEST_RESOURCES)
         meshroom.core.initNodes()
         meshroom.core.initPipelines()
 

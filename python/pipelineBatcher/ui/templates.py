@@ -31,7 +31,7 @@ MR_TYPE_MAP = {
 def get_templates_dir() -> str:
     """ Get the folder with the templates inside
     """
-    resources = os.getenv("MR_VFX_PIPELINE_RESOURCES")
+    resources = os.getenv("PIPELINE_RESOURCES")
     templatesFolder = Path(resources) / "batchPipelines"
     return str(templatesFolder)
 
@@ -40,7 +40,7 @@ def remap_template_path(path: str) -> str:
     """ Used to replace env vars inside the path
     """
     env = {
-        "RESOURCES": os.getenv("MR_VFX_PIPELINE_RESOURCES")
+        "RESOURCES": os.getenv("PIPELINE_RESOURCES")
     }
     for k, v in env.items():
         to_sub = "{" + k + "}"
