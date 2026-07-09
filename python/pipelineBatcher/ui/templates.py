@@ -96,8 +96,7 @@ def buildTemplatesIndex(templatesFolder):
 
 
 def getMgParameterInfo(path: str, nodeInstance: str, paramName: str) -> dict:
-    """
-    Introspect a Meshroom .mg file to determine the type of a parameter.
+    """Introspect a Meshroom .mg file to determine the type of a parameter.
 
     Args:
         path:         Absolute path to the .mg template file.
@@ -105,11 +104,11 @@ def getMgParameterInfo(path: str, nodeInstance: str, paramName: str) -> dict:
         paramName:    Attribute name on that node (e.g. "viewpoints").
 
     Returns a dict:
-        {
-            "type":     "string" | "int" | "float" | "bool" | "choice" | "file",
-            "default":  default value or None
-            "choices":  all choices values
-        }
+        - type: "string" | "int" | "float" | "bool" | "choice" | "file",
+        - node: node instance name
+        - paramName: parameter name
+        - default: default value or None
+        - choices: for choice widget : all possible choices
     """
     
     try:
@@ -140,6 +139,8 @@ def getMgParameterInfo(path: str, nodeInstance: str, paramName: str) -> dict:
                     mapped = MR_TYPE_MAP.get(type_name, "string")
                     result = {
                         "type": mapped,
+                        "node": nodeInstance,
+                        "paramName": paramName,
                         "default": attrDesc.value if hasattr(attrDesc, "value") else None,
                         "choices": [],
                     }

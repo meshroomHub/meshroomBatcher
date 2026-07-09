@@ -42,3 +42,18 @@ class TemplateCreationState:
             and self.selected_template.get("parameters")
         )
 
+
+def instantiate_pipelines(state):
+    import time
+    time.sleep(2)
+    template = state.selected_template
+    print(f"[instantiate_pipelines] template {template}")
+    print(f"[instantiate_pipelines] state {state}")
+    # for param_key, param_value in state.parameters.items():
+    #     node, attr = param_key.split(":")
+    #     graph.node(node).attribute(attr).value = param_value
+    for i, entity in enumerate(state.selected_entities):
+        # node, param = template["input_entity_param"].split(":")
+        # graph.node(node).attribute(param).value = entity
+        print(f"[instantiate_pipelines] {i}/{len(state.selected_entities)} - entity {entity}")
+

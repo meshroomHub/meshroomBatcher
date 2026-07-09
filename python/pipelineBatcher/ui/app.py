@@ -136,6 +136,12 @@ class PipelineBatcherBackend(QObject):
         except Exception as exc:  # noqa: BLE001
             self.errorOccurred.emit(str(exc))
 
+    def getSelectedTemplatePath(self):
+        return self._state.selected_template.get("template", "") 
+
+    def getSelectedTemplateparams(self):
+        return self._state.selected_template.get("parameters", "") 
+
     # --- Async slots : use busy_slot to make sure the UI displays the busy overlay ---
 
     @busy_slot("Fetching templates")
@@ -205,10 +211,11 @@ class PipelineBatcherBackend(QObject):
         self.next()
 
     @busy_slot("Fetching parameter info")
-    @Slot(str, str, result=str)
-    def getParamInfo(self, mg_path: str, node_param: str) -> str:
+    @Slot(str, result=str)
+    def getParamInfo(self, node_param: str) -> str:
         """Return JSON dict with type/default/choices for a 'NodeInstance:paramName'.
         """
+        mg_path = self.getSelectedTemplatePath()
         try:
             node_instance, param_name = utilities.parseNodeParam(node_param)
             info = TemplatesHelper.getMgParameterInfo(mg_path, node_instance, param_name)
@@ -224,22 +231,6 @@ class PipelineBatcherBackend(QObject):
         self._state.parameters = json.loads(params_json)
         self.next()
 
-    @busy_slot("Set parameters")
-    def instantiate_pipelines(self):
-        import time
-        time.sleep(2)
-        state = self._state
-        template = state.selected_template
-        print(f"[instantiate_pipelines] template {template}")
-        print(f"[instantiate_pipelines] state {state}")
-        # for param_key, param_value in state.parameters.items():
-        #     node, attr = param_key.split(":")
-        #     graph.node(node).attribute(attr).value = param_value
-        for i, entity in enumerate(state.selected_entities):
-            # node, param = template["input_entity_param"].split(":")
-            # graph.node(node).attribute(param).value = entity
-            print(f"[instantiate_pipelines] {i}/{len(state.selected_entities)} - entity {entity}")
-
     # --- Qt Signals and Properties ---
 
     busyChanged = Signal(bool)
@@ -251,3 +242,4 @@ class PipelineBatcherBackend(QObject):
     entityType = Property(str, lambda self: self._state.entity_type, constant=True)
     busy = Property(bool, _get_busy, _set_busy, notify=busyChanged)
     busyMessage = Property(str, _get_busy_message, notify=busyChanged)
+    templateParameters = Property('QVariantList', getSelectedTemplateparams, constant=True)
