@@ -6,6 +6,7 @@ Python Backend of the Pipeline Batcher UI
 import json
 import logging
 import functools
+import traceback
 from enum import Enum
 from typing import Any
 from dataclasses import dataclass, field
@@ -71,7 +72,7 @@ def busy_slot(message: str = ""):
             try:
                 return fn(self, *args, **kwargs)
             except Exception as exc:
-                logging.error(f"{fn.__name__} error: {exc}")
+                logging.error(f"{fn.__name__} error: {exc}\n{traceback.format_exc()}")
                 self.errorOccurred.emit(str(exc))
             finally:
                 self._busyMessage = ""
@@ -88,6 +89,11 @@ class PipelineBatcherBackend(QObject):
         self._templatesIndex = TemplatesHelper.buildTemplatesIndex(self._templates_dir)
         self._app   = parent
         self._busy  = False
+        self._busyMessage = ""
+        self._page  = PipelineBatcherPages.PAGE_TEMPLATE
+        self._state = TemplateCreationState()
+    
+    def reset(self):
         self._busyMessage = ""
         self._page  = PipelineBatcherPages.PAGE_TEMPLATE
         self._state = TemplateCreationState()
@@ -188,7 +194,7 @@ class PipelineBatcherBackend(QObject):
             tree = EntitiesHelper.get_entities_tree(entity_type)
             return json.dumps(tree, ensure_ascii=False)
         except Exception as exc:
-            logging.error(f"getEntitiesTree error: {exc}")
+            logging.error(f"getEntitiesTree error: {exc}\n{traceback.format_exc()}")
             self.errorOccurred.emit(str(exc))
             return json.dumps([])
 
@@ -207,7 +213,7 @@ class PipelineBatcherBackend(QObject):
             entities = EntitiesHelper.fetch_entities_by_group(entity_type, group_id)
             return json.dumps(entities, ensure_ascii=False)
         except Exception as exc:
-            logging.error(f"fetchEntitiesByGroup error: {exc}")
+            logging.error(f"fetchEntitiesByGroup error: {exc}\n{traceback.format_exc()}")
             self.errorOccurred.emit(str(exc))
             return json.dumps([])
 

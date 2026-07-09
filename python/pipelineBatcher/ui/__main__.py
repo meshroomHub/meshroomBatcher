@@ -26,7 +26,7 @@ from meshroom.api import registerQmlSource
 from meshroom.ui.extensions import QmlExtensions
 from meshroom.ui.components.clipboard import ClipboardHelper
 from meshroom.ui.components.filepath import FilepathHelper
-from meshroom.ui.utils import QFileSystemWatcher, QmlInstantEngine
+from meshroom.ui.utils import QFileSystemWatcher
 
 # ========== Imports from current package ==========
 from pipelineBatcher.ui.app import PipelineBatcherBackend
@@ -112,6 +112,7 @@ class PipelineBatcherApp:
         if self._window is not None and shiboken6.isValid(self._window):
             old_pos = self._window.position()
             old_size = self._window.size()
+            self._window.closing.disconnect(self._on_window_closing)
             self._window.close()
             shiboken6.delete(self._window)
             self._window = None
@@ -129,11 +130,15 @@ class PipelineBatcherApp:
                 logging.error("Failed to create QML window.")
                 return
             self._window = obj
+            self._window.closing.connect(self._on_window_closing)
             if old_pos is not None:
                 obj.setPosition(old_pos)
             if old_size is not None:
                 obj.resize(old_size)
             obj.show()
+        
+        # Reset status
+        self._backend.reset()
 
         self._engine.objectCreated.connect(on_object_created)
         self._engine.load(QUrl.fromLocalFile(str(QML_DIR / "app.qml")))
@@ -144,6 +149,10 @@ class PipelineBatcherApp:
         self._watcher.addPath(filepath)  # Re-add in case of atomic save (e.g. vim, PyCharm)
         self._debounce.start()
 
+    def _on_window_closing(self):
+        logging.debug("User closed the window, quitting.")
+        QApplication.quit()
+
 
 args = parse_args()
 
@@ -151,6 +160,7 @@ args = parse_args()
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 app = QApplication(sys.argv)
+app.setQuitOnLastWindowClosed(False)
 backend = PipelineBatcherBackend(parent=app)
 ui = PipelineBatcherApp(backend)
 app.exec()
