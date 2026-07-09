@@ -68,16 +68,14 @@ class PipelineBatcherBackend(QObject):
         self._templates_dir = TemplatesHelper.get_templates_dir()
         self._templatesIndex = TemplatesHelper.buildTemplatesIndex(self._templates_dir)
         self._app   = parent
+        self.reset()
+
+    def reset(self):
         self._busy  = False
         self._busyMessage = ""
         self._page  = PipelineBatcherPages.PAGE_TEMPLATE
         self._state = utilities.TemplateCreationState()
         self._instanciator = None
-    
-    def reset(self):
-        self._busyMessage = ""
-        self._page  = PipelineBatcherPages.PAGE_TEMPLATE
-        self._state = utilities.TemplateCreationState()
 
     def _get_busy(self) -> bool:
         return self._busy
