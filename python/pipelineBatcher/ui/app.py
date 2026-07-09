@@ -200,7 +200,7 @@ class PipelineBatcherBackend(QObject):
             self.errorOccurred.emit(str(exc))
             return json.dumps([])
 
-    @busy_slot("Fetching entities")
+    # Not a busy slot because it's quick
     @Slot(str, str, result=str)
     def fetchEntitiesByGroup(self, entity_type: str, group_id: str) -> str:
         """Return a JSON array of entity dicts that belong to a group ID within entity_type.
