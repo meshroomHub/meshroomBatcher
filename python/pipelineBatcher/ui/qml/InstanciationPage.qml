@@ -13,48 +13,38 @@ Item {
 
     property var instanciator: pipelineBatcherBackend.instanciator
 
-    onInstanciatorChanged: {
-        if (instanciator && visible)
-            _runAll()
-    }
-
-    onVisibleChanged: {
-        if (visible && instanciator)
-            _runAll()
-    }
-
     // --- State ---
+    property string statusText: ""
     property int  _currentEntity: 0
-    property int  _yOffset:       0
-    property bool _running:       false
+    property int  offset: 0
+    property bool _running: false
 
-    // --- Run process ---
-    function _runAll() {
+    function processAll() {
         if (_running) return
         _currentEntity = 0
-        _yOffset       = 0
-        _running       = true
-        statusLabel.text = "Starting..."
+        offset = 0
+        _running = true
+        statusText = "Starting..."
         _processNext()
     }
 
-    // --- Step for an entity ---
+    // --- Run on an entity ---
     function _processNext() {
         var total = instanciator.entityCount()
         if (_currentEntity >= total) {
             _running = false
-            statusLabel.text = "Done — " + total + " instance(s) created."
-            pipelineBatcherBackend.next()
+            statusText = "Done — " + total + " instance(s) created."
+            // pipelineBatcherBackend.next()
             return
         }
 
-        statusLabel.text = "Creating instance " + (_currentEntity + 1) + " / " + total + "..."
+        statusText = "Creating instance " + (_currentEntity + 1) + " / " + total + "..."
 
         // Create nodes
-        var nodes = instanciator.createInstanceForEntity(_currentEntity, _yOffset)
+        var nodes = instanciator.createInstanceForEntity(_currentEntity, offset)
 
         if (!nodes || nodes.length === 0) {
-            statusLabel.text = "Error on entity " + _currentEntity
+            statusLabel = "Error on entity " + _currentEntity
             _running = false
             return
         }
@@ -72,7 +62,6 @@ Item {
             maxX = Math.max(maxX, n.x + nw);  maxY = Math.max(maxY, n.y + nh)
         }
 
-        // 3. Add backdrop sized to this instance
         var bboxX = minX - padding
         var bboxY = minY - 2 * padding
         var bboxW = Math.round(maxX - minX + 2 * padding)
@@ -81,10 +70,10 @@ Item {
         // Create Backdrop wrapping the created pipeline instance
         var backdrop = _currentScene.addBackdropNode(Qt.point(bboxX, bboxY), bboxW, bboxH)
         // Set backdrop label
-        instanciator.setBackdropLabel(backdrop, instanciator.entityLabel(_currentEntity))
+        instanciator.setBackdropName(backdrop, instanciator.entityLabel(_currentEntity))
 
         // Update the Y padding for next instance and iterate
-        _yOffset = Math.round(maxY + padding * 4)
+        offset = Math.round(maxY + padding * 4)
         _currentEntity++
         iterTimer.restart()
     }
@@ -98,8 +87,11 @@ Item {
 
     // --- UI ---
     ColumnLayout {
-        anchors.centerIn: parent
+        anchors.fill: parent
+        anchors.margins: 20
         spacing: 16
+
+        Item { Layout.fillHeight: true }
 
         BusyIndicator {
             Layout.alignment: Qt.AlignHCenter
@@ -107,9 +99,9 @@ Item {
         }
 
         Label {
-            id: statusLabel
             Layout.alignment: Qt.AlignHCenter
             font.pixelSize: 14
+            text: root.statusText
         }
 
         ProgressBar {
@@ -117,6 +109,30 @@ Item {
             Layout.alignment: Qt.AlignHCenter
             visible: instanciator !== null
             value: instanciator ? _currentEntity / instanciator.entityCount() : 0
+        }
+
+        Item { Layout.fillHeight: true }
+
+        // Bottom bar
+        RowLayout {
+            Layout.fillWidth: true
+
+            Item { Layout.fillWidth: true }
+
+            NavigationButton {
+                text: "Close the UI"
+                navIcon: MaterialIcons.celebration
+                Material.background: hovered ? "#43d668" : "#2a67ad" 
+                Material.foreground: hovered ? "#424242" : "#e0e0e0"
+                scale: hovered ? 1.25 : 1.2
+                Behavior on scale {
+                    NumberAnimation { duration: 100 }
+                }
+                highlighted: hovered
+                onClicked: pipelineBatcherBackend.next()
+            }
+
+            Item { Layout.fillWidth: true }
         }
     }
 }

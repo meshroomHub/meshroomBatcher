@@ -144,6 +144,7 @@ ApplicationWindow {
         }
 
         function displayPageMessage() {
+            statusMsg.hide()
             if (currentIndex == 0)
                 statusMsg.show("Please select a template")
             else if (currentIndex == 1)
@@ -231,6 +232,9 @@ ApplicationWindow {
 
         function onPageChanged(page) {
             stack.currentIndex = page
+            // Process for the IntanciationPage
+            if (page === 3)
+                instanciationPage.processAll()
         }
 
         // Forward the selected template's entity type to EntityPage

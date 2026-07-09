@@ -101,6 +101,10 @@ Rectangle {
         hideTimer.restart()
     }
 
+    function hide() {
+        root.active = false
+    }
+
     PropertyAnimation {
         id: progressAnimation
         target: root

@@ -4,7 +4,7 @@
     "template": "{RESOURCES}/test_template.mg",
     "input_entity_type": "Shot",
     "input_entity_params": {
-        "code": "ShotCode_1:string"
+        "entity_name": "ShotCode_1:string"
     },
     "parameters": [
         "InputString_1:string",

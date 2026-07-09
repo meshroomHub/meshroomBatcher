@@ -103,18 +103,20 @@ class PipelineBatcherBackend(QObject):
     def next(self):
         nextIndex = self._page.value + 1
         if nextIndex == PipelineBatcherPages.PAGE_FINAL.value+1:
+            self.reset()
             self.closeRequested.emit()
             return
         if nextIndex not in map(lambda x: x.value, PipelineBatcherPages):
             logging.warning(f"Cannot go to page {nextIndex} : unknown page")
             return
         nextPage = PipelineBatcherPages(nextIndex)
-        if nextPage == PipelineBatcherPages.PAGE_FINAL:
-            self._prepareInstanciator()
         if nextPage == PipelineBatcherPages.PAGE_PARAMETER and not self.hasParametersPage():
             # Skip parameter page, jump straight to PAGE_FINAL
-            self._page = nextPage
+            self._go_to(nextPage)
             self.next()
+        elif nextPage == PipelineBatcherPages.PAGE_FINAL:
+            self._prepareInstanciator()
+            self._go_to(nextPage)
         else:
             self._go_to(nextPage)
 
@@ -128,6 +130,7 @@ class PipelineBatcherBackend(QObject):
     def cancel(self):
         self._state.reset()
         if self._page == PipelineBatcherPages.PAGE_TEMPLATE:
+            self.reset()
             self.closeRequested.emit()
         else:
             self._go_to(PipelineBatcherPages.PAGE_TEMPLATE)
