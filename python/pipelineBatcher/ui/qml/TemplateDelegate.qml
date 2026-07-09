@@ -22,10 +22,10 @@ Rectangle {
     border.width: selectedIndex === templateIndex ? 2 : 0
 
     Behavior on color {
-        ColorAnimation { duration: 250 }
+        ColorAnimation { duration: 150 }
     }
     Behavior on border.color {
-        ColorAnimation { duration: 300 }
+        ColorAnimation { duration: 200 }
     }
 
     // Hover state

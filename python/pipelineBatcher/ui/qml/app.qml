@@ -13,6 +13,7 @@ ApplicationWindow {
 
     Material.theme: Material.Dark
     Material.accent: Material.Blue
+    Material.primary: "#2b58ac"  // Toolbar color
 
     // Keep on top of Meshroom main window
     flags: Qt.Window | Qt.WindowStaysOnTopHint
@@ -23,6 +24,8 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.leftMargin: 12
             anchors.rightMargin: 12
+
+            Material.background: "#0e1b64"
 
             Label {
                 text: {
