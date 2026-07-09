@@ -149,11 +149,12 @@ ApplicationWindow {
         standardButtons: Dialog.Ok
         parent: Overlay.overlay
         anchors.centerIn: parent
+        width: 400
 
         Label {
             text: errorDialog.message
             wrapMode: Text.Wrap
-            width: 380
+            width: parent.width
         }
     }
 
