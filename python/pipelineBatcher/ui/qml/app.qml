@@ -28,6 +28,8 @@ ApplicationWindow {
                 text: {
                     switch (stack.currentIndex) {
                         case 0: return "Choose Template"
+                        case 1: return "Select Entities"
+                        case 2: return "Set Parameters"
                         default: return ""
                     }
                 }
@@ -40,7 +42,7 @@ ApplicationWindow {
             // Step indicators
             Repeater {
                 id: stepsIndicator
-                model: ["Template"]
+                model: ["Template", "Entities", "Parameters"]
                 delegate: RowLayout {
                     spacing: 4
 
