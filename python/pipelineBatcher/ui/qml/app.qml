@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import PBComponents 1.0
+import MaterialIcons 2.2
 
 ApplicationWindow {
     id: root
@@ -36,6 +37,7 @@ ApplicationWindow {
                         case 0: return "Choose Template"
                         case 1: return "Select Entities"
                         case 2: return "Set Parameters"
+                        case 3: return "Done"
                         default: return ""
                     }
                 }
@@ -49,7 +51,7 @@ ApplicationWindow {
             // Step indicators
             Repeater {
                 id: stepsIndicator
-                model: ["Template", "Entities", "Parameters"]
+                model: ["Template", "Entities", "Parameters", "Done"]
                 delegate: RowLayout {
                     spacing: 4
 
@@ -105,9 +107,47 @@ ApplicationWindow {
             id: parameterPage
         }
 
-        // TODO : ParameterPage placeholder
         Item {
-            id: parameterPagePlaceholder
+            id: donePage
+
+            ColumnLayout {
+                width: parent.width
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 12
+
+                Label {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    text: "You are done !"
+                    font.pixelSize: 20
+                    color: "#aaa"
+                }
+
+                // Bottom bar
+                RowLayout {
+                    Layout.fillWidth: true
+
+                    Item { Layout.fillWidth: true }
+
+                    NavigationButton {
+                        text: "Close the UI"
+                        navIcon: MaterialIcons.celebration
+                        Material.background: hovered ? "#43d668" : "#2a67ad" 
+                        Material.foreground: hovered ? "#424242" : "#e0e0e0"
+                        scale: hovered ? 1.25 : 1.2
+                        Behavior on scale {
+                            NumberAnimation { duration: 100 }
+                        }
+                        highlighted: hovered
+                        onClicked: pipelineBatcherBackend.next()
+                    }
+
+                    Item { Layout.fillWidth: true }
+                }
+            }
         }
 
         function displayPageMessage() {
@@ -191,6 +231,10 @@ ApplicationWindow {
     // --- Connections ---
     Connections {
         target: pipelineBatcherBackend
+
+        function onCloseRequested() {
+            root.close()
+        }
 
         function onPageChanged(page) {
             stack.currentIndex = page

@@ -38,7 +38,6 @@ Item {
             try {
                 var raw    = pipelineBatcherBackend.getParamInfo(nodeParam)
                 var parsed = JSON.parse(raw)
-                console.log("parsed", raw)
                 info.type = parsed.type || "string"
                 info.nodeName  = parsed.node      || ""
                 info.paramName = parsed.paramName || ""

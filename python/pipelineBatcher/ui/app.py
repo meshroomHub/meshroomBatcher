@@ -30,6 +30,7 @@ class PipelineBatcherPages(Enum):
     PAGE_TEMPLATE  = 0
     PAGE_ENTITY    = 1
     PAGE_PARAMETER = 2
+    PAGE_DONE = 3
 
 
 def busy_slot(message: str = ""):
@@ -102,13 +103,17 @@ class PipelineBatcherBackend(QObject):
     @Slot()
     def next(self):
         nextIndex = self._page.value + 1
+        if nextIndex == PipelineBatcherPages.PAGE_DONE.value+1:
+            self.closeRequested.emit()
+            return
         if nextIndex not in map(lambda x: x.value, PipelineBatcherPages):
-            # Last page -> launch
-            self._launch()
+            logging.warning(f"Cannot go to page {nextIndex} : unknown page")
             return
         nextPage = PipelineBatcherPages(nextIndex)
-        if nextPage == PipelineBatcherPages.PAGE_PARAMETER and not self.hasParametersPage():
+        if nextPage == PipelineBatcherPages.PAGE_DONE:
             self._launch()
+        if nextPage == PipelineBatcherPages.PAGE_PARAMETER and not self.hasParametersPage():
+            self.next()  # Go to PAGE_DONE -> this will call launch
         else:
             self._go_to(nextPage)
 
@@ -121,8 +126,10 @@ class PipelineBatcherBackend(QObject):
     @Slot()
     def cancel(self):
         self._state.reset()
-        self._go_to(PipelineBatcherPages.PAGE_TEMPLATE)
-        # TODO : exit instead
+        if self._page == PipelineBatcherPages.PAGE_TEMPLATE:
+            self.closeRequested.emit()
+        else:
+            self._go_to(PipelineBatcherPages.PAGE_TEMPLATE)
 
     def _go_to(self, page: PipelineBatcherPages):
         if self._page != page:
@@ -233,6 +240,7 @@ class PipelineBatcherBackend(QObject):
 
     # --- Qt Signals and Properties ---
 
+    closeRequested = Signal()
     busyChanged = Signal(bool)
     busyMessageChanged = Signal(str)
     pageChanged = Signal(int)
