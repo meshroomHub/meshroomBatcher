@@ -150,20 +150,7 @@ class PipelineBatcherBackend(QObject):
         except Exception as exc:  # noqa: BLE001
             self.errorOccurred.emit(str(exc))
 
-    def instantiate_pipelines(self):
-        state = self._state
-        template = state.selected_template
-        print(f"[instantiate_pipelines] template {template}")
-        print(f"[instantiate_pipelines] state {state}")
-        # for param_key, param_value in state.parameters.items():
-        #     node, attr = param_key.split(":")
-        #     graph.node(node).attribute(attr).value = param_value
-        for i, entity in enumerate(state.selected_entities):
-            # node, param = template["input_entity_param"].split(":")
-            # graph.node(node).attribute(param).value = entity
-            print(f"[instantiate_pipelines] {i}/{len(state.selected_entities)} - entity {entity}")
-
-    # --- Exchange infos ---
+    # --- Async slots : use busy_slot to make sure the UI displays the busy overlay ---
 
     @busy_slot("Fetching templates")
     @Slot(result=str)
@@ -185,16 +172,87 @@ class PipelineBatcherBackend(QObject):
         self.templateSelected.emit(entity_type)
         self.next()
 
+    @busy_slot("Fetching entities")
+    @Slot(str, result=str)
+    def getEntitiesTree(self, entity_type: str) -> str:
+        """Return a JSON array representing the navigation tree.
+
+        Each item on the dict has the following keys:
+        - id: unique identifier used to fetch entities
+        - label: display name
+        - icon: (optional) icon to show before the label
+        - children: leaf nodes (eg. for Asset -> each asset type)
+        """
+        logging.info(f"Get entities tree for entity type: {entity_type}")
+        try:
+            tree = EntitiesHelper.get_entities_tree(entity_type)
+            return json.dumps(tree, ensure_ascii=False)
+        except Exception as exc:
+            logging.error(f"getEntitiesTree error: {exc}")
+            self.errorOccurred.emit(str(exc))
+            return json.dumps([])
+
+    @busy_slot("Fetching entities")
+    @Slot(str, str, result=str)
+    def fetchEntitiesByGroup(self, entity_type: str, group_id: str) -> str:
+        """Return a JSON array of entity dicts that belong to a group ID within entity_type.
+        
+        Each item on the dict has the following keys:
+        - id: unique entity id (passed to setSelectedEntities)
+        - name: display name
+        - status: (optional) status of the item, displayed as a coloured badge
+        - description: (optional) description shown in the third column
+        """
+        try:
+            entities = EntitiesHelper.fetch_entities_by_group(entity_type, group_id)
+            return json.dumps(entities, ensure_ascii=False)
+        except Exception as exc:
+            logging.error(f"fetchEntitiesByGroup error: {exc}")
+            self.errorOccurred.emit(str(exc))
+            return json.dumps([])
+
+    @busy_slot("Set selected entities")
     @Slot(str)
     def setSelectedEntities(self, entities_json: str):
-        """Receive the entity ids checked on EntityPage (no auto-advance)."""
+        """Receive the entity ids checked on EntityPage."""
         self._state.selected_entities = json.loads(entities_json)
         self.next()
 
+    @busy_slot("Fetching parameter info")
+    @Slot(str, str, result=str)
+    def getParamInfo(self, mg_path: str, node_param: str) -> str:
+        """Return JSON dict with type/default/choices for a 'NodeInstance:paramName'.
+        """
+        try:
+            node_instance, param_name = utilities.parseNodeParam(node_param)
+            info = TemplatesHelper.getMgParameterInfo(mg_path, node_instance, param_name)
+            return json.dumps(info, ensure_ascii=False)
+        except Exception as exc:
+            logging.warning(f"getParamInfo error: {exc}")
+            return json.dumps({"type": "string", "default": "", "choices": []})
+
+    @busy_slot("Set parameters")
     @Slot(str)
     def setParameters(self, params_json: str):
-        """Receive the parameter values filled on ParameterPage (no auto-advance)."""
+        """Receive the parameter values filled on ParameterPage."""
         self._state.parameters = json.loads(params_json)
+        self.next()
+
+    @busy_slot("Set parameters")
+    def instantiate_pipelines(self):
+        import time
+        time.sleep(2)
+        state = self._state
+        template = state.selected_template
+        print(f"[instantiate_pipelines] template {template}")
+        print(f"[instantiate_pipelines] state {state}")
+        # for param_key, param_value in state.parameters.items():
+        #     node, attr = param_key.split(":")
+        #     graph.node(node).attribute(attr).value = param_value
+        for i, entity in enumerate(state.selected_entities):
+            # node, param = template["input_entity_param"].split(":")
+            # graph.node(node).attribute(param).value = entity
+            print(f"[instantiate_pipelines] {i}/{len(state.selected_entities)} - entity {entity}")
 
     # --- Qt Signals and Properties ---
 
