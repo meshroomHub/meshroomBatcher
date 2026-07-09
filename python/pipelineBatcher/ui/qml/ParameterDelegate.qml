@@ -119,7 +119,7 @@ Item {
         TextField {
             property var currentValue: text
             text: String(root.paramData.default || "")
-            placeholderText: "Enter value…"
+            placeholderText: "Enter value..."
             selectByMouse: true
         }
     }
@@ -134,13 +134,13 @@ Item {
                 id: pathField
                 Layout.fillWidth: true
                 text: String(root.paramData.default || "")
-                placeholderText: "Path…"
+                placeholderText: "Path..."
                 selectByMouse: true
             }
             Button {
-                text: "…"
+                text: "..."
                 flat: true
-                ToolTip.text: "Browse…"
+                ToolTip.text: "Browse..."
                 ToolTip.visible: hovered
                 onClicked: folderDialog.open()
             }

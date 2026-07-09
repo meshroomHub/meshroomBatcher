@@ -63,6 +63,7 @@ Item {
             }
         }
         pipelineBatcherBackend.setParameters(JSON.stringify(result))
+        pipelineBatcherBackend.next()
     }
 
     // -- Parameter Delegate --
