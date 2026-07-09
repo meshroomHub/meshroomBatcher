@@ -10,6 +10,7 @@ Item {
     property var    nodeData:      ({})
     property string activeGroupId: ""
     property int    depth:         0
+    property color textColor
 
     signal groupSelected(string id)
 
@@ -74,7 +75,7 @@ Item {
                     visible: root.hasChildren
                     text: root.expanded ? MaterialIcons.arrow_drop_down : MaterialIcons.arrow_right
                     font.pixelSize: 10
-                    color: "#888"
+                    color: root.textColor
                 }
             }
 
@@ -82,6 +83,7 @@ Item {
                 visible: !!nodeData.icon
                 text:    nodeData.icon || ""
                 font.pixelSize: 14
+                color: isActive ? "white" : root.textColor
             }
 
             Label {
@@ -89,7 +91,7 @@ Item {
                 text: nodeData.label || nodeData.id || ""
                 font.pixelSize: 13
                 font.weight: isActive ? Font.Medium : Font.Normal
-                color: isActive ? "white" : "#ccc"
+                color: isActive ? "white" : Qt.lighter(root.textColor, 1.5)
                 elide: Text.ElideRight
             }
 
@@ -104,7 +106,7 @@ Item {
                     anchors.centerIn: parent
                     text: Array.isArray(nodeData.children) ? nodeData.children.length : 0
                     font.pixelSize: 10
-                    color: "#888"
+                    color: root.textColor
                 }
             }
         }

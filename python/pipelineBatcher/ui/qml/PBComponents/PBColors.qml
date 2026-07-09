@@ -35,4 +35,22 @@ QtObject {
         if (s === "apr"  || s === "Client Approved"    ) return "#44ce21"
         return "#303030"
     }
+
+    function toRgb(color) {
+        return [
+            parseInt(color.toString().substr(1, 2), 16) / 255, 
+            parseInt(color.toString().substr(3, 2), 16) / 255, 
+            parseInt(color.toString().substr(5, 2), 16) / 255
+        ]
+    }
+
+    function interpolate(c1, c2, u) {
+        let rgb1 = toRgb(c1)
+        let rgb2 = toRgb(c2)
+        return Qt.rgba(
+            rgb1[0] * (1 - u) + rgb2[0] * u,
+            rgb1[1] * (1 - u) + rgb2[1] * u,
+            rgb1[2] * (1 - u) + rgb2[2] * u
+        )
+    }
 }

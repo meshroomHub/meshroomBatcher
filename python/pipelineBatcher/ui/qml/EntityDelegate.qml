@@ -2,12 +2,14 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
+import PBComponents 1.0
 
 Rectangle {
     id: root
 
     property var entityData  // {id, name, status, description, **kwargs}
     property bool checked: false
+    property color textColor
 
     signal toggled(string id)
 
@@ -58,7 +60,7 @@ Rectangle {
             text: entityData.name || entityData.id
             font.pixelSize: 13
             font.weight: root.checked ? Font.Medium : Font.Normal
-            color: root.checked ? "white" : "#ddd"
+            color: root.checked ? "white" : Qt.lighter(root.textColor, 1.5)
             elide: Text.ElideRight
             leftPadding: 4
         }
@@ -75,7 +77,7 @@ Rectangle {
                 height: 20
                 width: statusLabel.implicitWidth + 14
                 radius: 10
-                color: TBColors._statusColor(entityData.status)
+                color: PBColors._statusColor(entityData.status)
                 opacity: 0.85
 
                 Label {
@@ -96,7 +98,7 @@ Rectangle {
             verticalAlignment: Text.AlignVCenter  // Centers text within the bounding box
             text: entityData ? (entityData.description || "") : ""
             font.pixelSize: 12
-            color: "#888"
+            color: root.textColor
             elide: Text.ElideRight
         }
     }

@@ -1,0 +1,4 @@
+module PBComponents
+
+singleton PBColors     1.0 PBColors.qml
+Snackbar               1.0 Snackbar.qml

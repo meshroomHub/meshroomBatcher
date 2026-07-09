@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
+import PBComponents 1.0
 
 Rectangle {
     id: root
@@ -11,13 +12,20 @@ Rectangle {
     property var templateModelData
     property int selectedIndex: -1
 
+    // Theme
+    property bool darkTheme: Material.theme == Material.Dark
+
     // Signals back to TemplatePage
     signal selected(int idx)   // single click
     signal confirmed(int idx)  // double click
-
+    
     height: templateContent.implicitHeight + 24
     radius: 8
-    color: selectedIndex === templateIndex ? "#1a3a6e" : "#2a2a2a"
+
+    // Color settings
+    property color accent: Material.accent
+    property color backgroundColor: darkTheme ? "#2a2a2a" : "#ddd"
+    color: PBColors.interpolate(backgroundColor, accent, selectedIndex === templateIndex ? 0.3 : 0)
     border.color: selectedIndex === templateIndex ? Material.accent : "transparent"
     border.width: selectedIndex === templateIndex ? 2 : 0
 
@@ -62,7 +70,7 @@ Rectangle {
         Rectangle {
             width: 48; height: 48
             radius: 8
-            color: TBColors.entityColor(templateModelData.input_entity_type)
+            color: PBColors.entityColor(templateModelData.input_entity_type)
 
             Label {
                 anchors.centerIn: parent
@@ -90,7 +98,7 @@ Rectangle {
             Label {
                 text: templateModelData.description || ""
                 font.pixelSize: 12
-                color: "#aaa"
+                color: root.darkTheme ? "#aaa" : "#888"
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }
@@ -101,7 +109,7 @@ Rectangle {
             height: 22
             width: entityTypeLabel.implicitWidth + 16
             radius: 11
-            color: TBColors.entityColor(templateModelData.input_entity_type)
+            color: PBColors.entityColor(templateModelData.input_entity_type)
             opacity: 0.85
 
             Label {
@@ -118,7 +126,7 @@ Rectangle {
             text: (templateModelData.parameters ? templateModelData.parameters.length : 0)
                     + " param(s)"
             font.pixelSize: 11
-            color: "#888"
+            color: root.darkTheme ? "#aaa" : "#888"
         }
     }
 }

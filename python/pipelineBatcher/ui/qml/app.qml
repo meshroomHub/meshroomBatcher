@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
+import PBComponents 1.0
 
 ApplicationWindow {
     id: root
@@ -11,7 +12,9 @@ ApplicationWindow {
     minimumWidth: 700
     minimumHeight: 520
 
-    Material.theme: Material.Dark
+    property bool darkTheme: true
+
+    Material.theme: darkTheme ? Material.Dark : Material.Light
     Material.accent: Material.Blue
     Material.primary: "#2b58ac"  // Toolbar color
 
@@ -36,6 +39,7 @@ ApplicationWindow {
                         default: return ""
                     }
                 }
+                color: "white"
                 font.pixelSize: 15
                 font.weight: Font.Medium
             }
@@ -162,37 +166,13 @@ ApplicationWindow {
     }
 
     // --- Status snackbar ---
-    Rectangle {
+    Snackbar {
         id: statusMsg
-        visible: false
-        width: snackLabel.implicitWidth + 40
-        height: 42
-        radius: 6
-        color: "#2979FF"
 
         anchors {
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
-            bottomMargin: 12
-        }
-
-        function show(msg, duration) {
-            snackLabel.text = msg
-            visible = true
-            hideTimer.interval = duration || 3000
-            hideTimer.restart()
-        }
-
-        Label {
-            id: snackLabel
-            anchors.centerIn: parent
-            color: "white"
-            font.pixelSize: 13
-        }
-
-        Timer {
-            id: hideTimer
-            onTriggered: statusMsg.visible = false
+            bottomMargin: 20
         }
     }
 

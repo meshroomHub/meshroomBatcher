@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import MaterialIcons 2.2
+import PBComponents 1.0
 
 Item {
     id: root
@@ -33,6 +34,9 @@ Item {
         if (visible && entityType !== "")
             _loadTree()
     }
+
+    // Theme
+    property bool darkTheme: Material.theme == Material.Dark
 
     // --- Data loading ---
 
@@ -105,10 +109,13 @@ Item {
 
     // --- Layout ---
     ColumnLayout {
+        id: entityPageLayout
         visible: !root.treeDataLoading
         anchors.fill: parent
         anchors.margins: 20
         spacing: 12
+
+        property color textColor: darkTheme ? "#888" : "#222"
 
         // Top bar
         RowLayout {
@@ -119,7 +126,7 @@ Item {
                 height: 26
                 width: entityTypeBadgeLabel.implicitWidth + 40
                 radius: 13
-                color: TBColors.entityColor(root.entityType)
+                color: PBColors.entityColor(root.entityType)
 
                 Label {
                     id: entityTypeBadgeLabel
@@ -136,7 +143,7 @@ Item {
                         ? root.checkedCount + " selected"
                         : entityList.length + " entities in group"
                 font.pixelSize: 13
-                color: root.checkedCount > 0 ? Material.accent : "#aaa"
+                color: root.checkedCount > 0 ? Material.accent : (root.darkTheme ? "#aaa" : "#666")
             }
 
             Item { Layout.fillWidth: true }
@@ -169,7 +176,7 @@ Item {
                 Layout.minimumWidth: 140
                 Layout.fillHeight: true
                 radius: 8
-                color: "#1e1e1e"
+                color: root.darkTheme ? "#1e1e1e" : "#eee"
                 border.color: "#333"
                 border.width: 1
                 clip: true
@@ -184,7 +191,7 @@ Item {
                         text: "Browse"
                         font.pixelSize: 11
                         font.weight: Font.Medium
-                        color: "#888"
+                        color: entityPageLayout.textColor
                         leftPadding: 12
                         topPadding: 10
                         bottomPadding: 8
@@ -212,6 +219,7 @@ Item {
                                 activeGroupId: root.activeGroupId
                                 depth: 0
                                 onGroupSelected: (id) => root._selectGroup(id)
+                                textColor: entityPageLayout.textColor
                             }
                         }
                     }
@@ -223,7 +231,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: 8
-                color: "#1e1e1e"
+                color: root.darkTheme ? "#1e1e1e" : "#eee"
                 border.color: "#333"
                 border.width: 1
                 clip: true
@@ -237,7 +245,8 @@ Item {
                     Rectangle {
                         Layout.fillWidth: true
                         height: 34
-                        color: "#242424"
+                        // color: "#242424"
+                        color: root.darkTheme ? "#242424" : "#ccc"
                         radius: 7
 
                         Rectangle {
@@ -261,21 +270,21 @@ Item {
                                 text: "Name"
                                 font.pixelSize: 11
                                 font.weight: Font.Medium
-                                color: "#888"
+                                color: entityPageLayout.textColor
                             }
                             Label {
                                 Layout.preferredWidth: 90
                                 text: "Status"
                                 font.pixelSize: 11
                                 font.weight: Font.Medium
-                                color: "#888"
+                                color: entityPageLayout.textColor
                             }
                             Label {
                                 Layout.fillWidth: true
                                 text: "Description"
                                 font.pixelSize: 11
                                 font.weight: Font.Medium
-                                color: "#888"
+                                color: entityPageLayout.textColor
                             }
                         }
                     }
@@ -324,6 +333,7 @@ Item {
                                 entityData: modelData
                                 checked: !!root.checkedIds[modelData.id]
                                 onToggled: (id) => root._toggleEntity(id)
+                                textColor: entityPageLayout.textColor
                             }
                         }
                     }
