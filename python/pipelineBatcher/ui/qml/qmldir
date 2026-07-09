@@ -1,0 +1,5 @@
+module PipelineBatcher
+
+app               1.0 app.qml
+TemplatePage      1.0 TemplatePage.qml
+TemplateDelegate  1.0 TemplateDelegate.qml
