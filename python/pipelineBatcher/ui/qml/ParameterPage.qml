@@ -79,7 +79,6 @@ Item {
 
     // --- UI ---
     ColumnLayout {
-        width: parent.width
         anchors.fill: parent
         anchors.margins: 20
         spacing: 12
@@ -89,77 +88,83 @@ Item {
             text: paramInfos.length + " parameter(s) to configure"
             font.pixelSize: 12
             color: "#aaa"
+            Layout.fillWidth: true
         }
 
         // Parameter form
-        ScrollView {
-            enabled: paramInfos.length > 0
-
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
 
-            Column {
-                width: parent.width
-                spacing: 16
+            // Placeholder
+            Label {
+                anchors.centerIn: parent
+                visible: paramInfos.length === 0
+                text: "No parameters - ready to start."
+                font.pixelSize: 15
+                color: "#aaa"
+            }
 
-                Repeater {
-                    id: paramRepeater
-                    model: paramInfos
-                    delegate: paramDelegateComponent
+            ScrollView {
+                anchors.fill: parent
+                visible: paramInfos.length > 0
+                clip: true
+
+                Column {
+                    width:   parent.width
+                    spacing: 16
+
+                    Repeater {
+                        id: paramRepeater
+                        model: paramInfos
+                        delegate: paramDelegateComponent
+                    }
                 }
             }
-        }
-
-        // Placeholder
-        Label {
-            enabled: paramInfos.length === 0
-            visible: enabled
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            text: "No parameters - ready to start."
-            font.pixelSize: 15
-            color: "#aaa"
         }
 
         // Bottom bar
-        RowLayout {
+        Item {
             Layout.fillWidth: true
+            Layout.preferredHeight: bottomRow.implicitHeight
 
-            NavigationButton {
-                text: "Cancel"
-                flat: true
-                Material.background: hovered ? Material.Pink : Material.Red
-                highlighted: hovered
-                onClicked: pipelineBatcherBackend.cancel()
-                textColor: "#000000"
-            }
+            RowLayout {
+                id: bottomRow
+                anchors.fill: parent
 
-            NavigationButton {
-                text: "Back"
-                navIcon: MaterialIcons.chevron_left
-                navIconPosition: "left"
-                flat: true
-                highlighted: hovered
-                onClicked: pipelineBatcherBackend.back()
-            }
-
-            Item { Layout.fillWidth: true }
-
-            NavigationButton {
-                text: "Start"
-                navIcon: MaterialIcons.play_arrow
-                navIconPosition: "left"
-                Material.background: hovered ? "#43d668" : "#2a67ad" 
-                Material.foreground: hovered ? "#424242" : "#e0e0e0"
-                scale: hovered ? 1.05 : 1.0
-                Behavior on scale {
-                    NumberAnimation { duration: 100 }
+                NavigationButton {
+                    text: "Cancel"
+                    flat: true
+                    Material.background: hovered ? Material.Pink : Material.Red
+                    highlighted: hovered
+                    onClicked: pipelineBatcherBackend.cancel()
+                    textColor: "#000000"
                 }
-                highlighted: hovered
-                onClicked: _collectAndStart()
+
+                NavigationButton {
+                    text: "Back"
+                    navIcon: MaterialIcons.chevron_left
+                    navIconPosition: "left"
+                    flat: true
+                    highlighted: hovered
+                    onClicked: pipelineBatcherBackend.back()
+                }
+
+                Item { Layout.fillWidth: true }
+
+                NavigationButton {
+                    text: "Start"
+                    navIcon: MaterialIcons.play_arrow
+                    navIconPosition: "left"
+                    Material.background: hovered ? "#43d668" : "#2a67ad"
+                    Material.foreground: hovered ? "#424242" : "#e0e0e0"
+                    scale: hovered ? 1.05 : 1.0
+                    Behavior on scale {
+                        NumberAnimation { duration: 100 }
+                    }
+                    highlighted: hovered
+                    onClicked: _collectAndStart()
+                }
             }
         }
     }
