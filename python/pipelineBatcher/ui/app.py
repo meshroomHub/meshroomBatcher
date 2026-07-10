@@ -151,10 +151,10 @@ class PipelineBatcherBackend(QObject):
             self.errorOccurred.emit(str(exc))
 
     def getSelectedTemplatePath(self):
-        return self._state.selected_template.get("template", "") 
+        return self._state.selected_template.template
 
     def getSelectedTemplateParams(self):
-        return self._state.selected_template.get("parameters", "") 
+        return self._state.selected_template.parameters
 
     # --- Async slots : use busy_slot to make sure the UI displays the busy overlay ---
 
@@ -239,7 +239,7 @@ class PipelineBatcherBackend(QObject):
             return json.dumps(info, ensure_ascii=False)
         except Exception as exc:
             logging.warning(f"getParamInfo error: {exc}")
-            return json.dumps({"type": "string", "default": "", "choices": []})
+            return json.dumps({"type": "unknown", "default": "", "choices": []})
 
     # @busy_slot("Set parameters")
     @Slot(str)

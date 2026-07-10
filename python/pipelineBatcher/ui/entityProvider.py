@@ -184,15 +184,11 @@ class EntityProviderRegistry(object):
         - icon    : optional emoji / single unicode character
         - children: child items
         """
-        print("getEntityTree", templateIndex)
         if templateIndex not in cls._templateProvider:
             raise KeyError(f"No provider for template {templateIndex}")
         providerName = cls._templateProvider[templateIndex]
-        print("providerName", providerName)
         provider = cls._registry[providerName]
-        print("provider", provider)
         template = cls._templates[templateIndex]
-        print("template", template)
         return provider.getEntitiesTree(template.getName())
 
     @classmethod

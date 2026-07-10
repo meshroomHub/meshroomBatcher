@@ -38,7 +38,7 @@ Item {
             try {
                 var raw    = pipelineBatcherBackend.getParamInfo(nodeParam)
                 var parsed = JSON.parse(raw)
-                info.type = parsed.type || "string"
+                info.type = parsed.type || "unknown"
                 info.nodeName  = parsed.node      || ""
                 info.paramName = parsed.paramName || ""
                 info.default = parsed.default !== undefined ? parsed.default : ""
@@ -47,7 +47,9 @@ Item {
                 console.warn("[ParameterPage] getParamInfo failed for", nodeParam, e)
             }
 
-            infos.push(info)
+            if (!info.type || info.type !== "unknown") {
+                infos.push(info)
+            }
         }
 
         paramInfos = infos

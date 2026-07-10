@@ -54,56 +54,42 @@ def getMgParameterInfo(path: str, nodeInstance: str, paramName: str) -> dict:
         - default: default value or None
         - choices: for choice widget : all possible choices
     """
-    
-    try:
-        with open(path, "r") as f:
-            mg = json.load(f)
+    with open(path, "r") as f:
+        mg = json.load(f)
 
-        nodes = mg.get("graph", {})
-        if nodeInstance not in nodes:
-            logging.warning(
-                f"Node '{nodeInstance}' not found in '{path}'. "
-                f"Available: {list(nodes.keys())}"
-            )
-            return None
-
-        node_data = nodes[nodeInstance]
-        node_type = node_data.get("nodeType", "")
-
-        # Try to resolve the node descriptor from Meshroom's registry
-        try:
-            # g = Graph("").load(template)
-            # g._nodes["GraphInput"].getAttributes()
-            nodeDescClass = pluginManager.getRegisteredNodePlugin(node_type).nodeDescriptor
-            if nodeDescClass is None:
-                return None
-
-            nodeDesc = nodeDescClass()
-            for attrDesc in nodeDesc.inputs:
-                if attrDesc.name == paramName:
-                    type_name = type(attrDesc).__name__
-                    mapped = MR_TYPE_MAP.get(type_name, "string")
-                    result = {
-                        "type": mapped,
-                        "node": nodeInstance,
-                        "paramName": paramName,
-                        "default": attrDesc.value if hasattr(attrDesc, "value") else None,
-                        "choices": [],
-                    }
-                    if mapped == "choice" and hasattr(attrDesc, "values"):
-                        result["choices"] = list(attrDesc.values)
-                    return result
-        except Exception as inner:
-            logging.debug(f"Descriptor lookup failed: {inner}")
-
-        return None
-
-    except Exception as exc:
-        logging.warning(
-            f"get_param_info failed for "
-            f"'{nodeInstance}:{paramName}' in '{path}': {exc}"
+    nodes = mg.get("graph", {})
+    if nodeInstance not in nodes:
+        raise ValueError(
+            f"Node '{nodeInstance}' not found in '{path}'. "
+            f"Available: {list(nodes.keys())}"
         )
+
+    node_data = nodes[nodeInstance]
+    node_type = node_data.get("nodeType", "")
+
+    # g = Graph("").load(template)
+    # g._nodes["GraphInput"].getAttributes()
+    nodeDescClass = pluginManager.getRegisteredNodePlugin(node_type).nodeDescriptor
+    if nodeDescClass is None:
         return None
+
+    nodeDesc = nodeDescClass()
+    for attrDesc in nodeDesc.inputs:
+        if attrDesc.name == paramName:
+            type_name = type(attrDesc).__name__
+            mapped = MR_TYPE_MAP.get(type_name, "string")
+            result = {
+                "type": mapped,
+                "node": nodeInstance,
+                "paramName": paramName,
+                "default": attrDesc.value if hasattr(attrDesc, "value") else None,
+                "choices": [],
+            }
+            if mapped == "choice" and hasattr(attrDesc, "values"):
+                result["choices"] = list(attrDesc.values)
+            return result
+
+    return None
 
 
 def parseNodeParam(nodeParam: str):
@@ -132,7 +118,7 @@ class TemplateCreationState:
     def needs_parameter_page(self) -> bool:
         return bool(
             self.selected_template
-            and self.selected_template.get("parameters")
+            and len(self.selected_template.parameters) > 0
         )
 
 
@@ -152,7 +138,7 @@ class TemplateInstanciator(QObject):
         self._app: "MeshroomApp" = app
         self._uigraph: "UIGraph" = app._activeProject  # UIGraph (Scene)
         self._parameters: list[OverrideParameter] = parameters
-        self._entities: list[CachedEntity]   = entities
+        self._entities: list[CachedEntity] = entities
         self._tplPath = tplPath
 
         self._entityParams: list[tuple[str, str, str]] = []  # node_instance, param_name, sg_field
@@ -237,8 +223,8 @@ class TemplateInstanciator(QObject):
 
 
 def build_instanciator(app, state: TemplateCreationState) -> TemplateInstanciator:
-    template     = state.selected_template["template"]
-    entityParams = state.selected_template.get("input_entity_params", {})
+    templatePath = state.selected_template.template
+    entityParams = state.selected_template.input_entity_params
     entities     = [get_entity(eid) for eid in state.selected_entities]
     parameters   = [OverrideParameter(*k.split(":"), v) for k, v in state.parameters.items()]
-    return TemplateInstanciator(app, template, entityParams, parameters, entities)
+    return TemplateInstanciator(app, templatePath, entityParams, parameters, entities)
