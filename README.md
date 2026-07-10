@@ -39,3 +39,36 @@ Then the UI launches.
 
 ## How to implement a new Entity Provider
 
+> [!TIP]
+> An `EntityProvider` demo file can be found [here](./python/mock/mockEntityProvider.py)
+
+To implement a new provider you must write a class inheriting `EntityProvider`, and then register it in the `EntityProviderRegistry`:
+
+```python
+from pipelineBatcher.ui.entityProvider import EntityBase, TemplateInfo, EntityProvider, EntityProviderRegistry
+
+class MyEntityProvider(EntityProvider):
+    name = "MyEntityProvider"
+    entityType = "EntityName"
+
+    def listAvailableTemplates(self) -> list[TemplateInfo]:
+        """List templates provided by this provider"""
+        ...
+
+    def getEntitiesTree(self, templateName: str) -> list[dict]:
+        """Return the navigation tree for entity_type.
+
+        Keys:
+        - id      : stable identifier used in fetchEntitiesByGroup
+        - label   : human-readable display name
+        - icon    : optional emoji / single unicode character
+        - children: child items
+        """
+        ...
+
+    def fetchEntitiesByGroup(self, templateName: str, group_id: str) -> list[EntityBase]:
+        """Return entities belonging to group_id for the given entity_type."""
+        ...
+
+EntityProviderRegistry.register(MyEntityProvider())
+```
