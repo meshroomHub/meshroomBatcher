@@ -69,4 +69,4 @@ def commands():
     # Menu
     env.MESHROOM_PLUGINS_PATH.append("{this.root}/python/pipelineBatcher")
     # Alias
-    alias("templateBatcherUI", "python {this.root}/python/pipelineBatcher/ui")
+    alias("meshroomBatcher", "python {this.root}/python/pipelineBatcher/ui")
