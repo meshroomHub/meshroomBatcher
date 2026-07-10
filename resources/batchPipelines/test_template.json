@@ -8,6 +8,7 @@
     },
     "parameters": [
         "InputString_1:string",
-        "InputInt_1:integer"
+        "InputInt_1:integer",
+        "InputFile_1:inputFile"
     ]
 }
