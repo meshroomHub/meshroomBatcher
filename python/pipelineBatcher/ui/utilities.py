@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from meshroom.ui.graph import UIGraph
 
 # ========== Imports from current package ==========
-from pipelineBatcher.ui.entityProvider import get_entity, CachedEntity, TemplateInfo
+from pipelineBatcher.ui.entityProvider import EntityBase, EntityCache, TemplateInfo
 
 
 OverrideParameter = namedtuple("OverrideParameter", ("node_instance", "parameter_name", "value"))
@@ -106,6 +106,7 @@ class TemplateCreationState:
     entity_type: str = ""
     selected_template: TemplateInfo | None = None
     selected_entities: list[str] = field(default_factory=list)
+    """list of IDs of selected entities"""
     parameters: dict[str, Any] = field(default_factory=dict)
 
     def reset(self):
@@ -138,8 +139,14 @@ class TemplateInstanciator(QObject):
         self._app: "MeshroomApp" = app
         self._uigraph: "UIGraph" = app._activeProject  # UIGraph (Scene)
         self._parameters: list[OverrideParameter] = parameters
-        self._entities: list[CachedEntity] = entities
+        self._entities: list[EntityBase] = entities
         self._tplPath = tplPath
+
+        logging.debug("TemplateInstanciator")
+        logging.debug("  tplPath     :",      tplPath)
+        logging.debug("  entityParams:", entityParams)
+        logging.debug("  parameters  :", parameters  )
+        logging.debug("  entities    :", entities    )
 
         self._entityParams: list[tuple[str, str, str]] = []  # node_instance, param_name, sg_field
         for sgField, entityParam in entityParams.items():
@@ -223,8 +230,9 @@ class TemplateInstanciator(QObject):
 
 
 def build_instanciator(app, state: TemplateCreationState) -> TemplateInstanciator:
+    templateIndex = state.selected_template.index
     templatePath = state.selected_template.template
     entityParams = state.selected_template.input_entity_params
-    entities     = [get_entity(eid) for eid in state.selected_entities]
+    entities     = [EntityCache.get(templateIndex, eId) for eId in state.selected_entities]
     parameters   = [OverrideParameter(*k.split(":"), v) for k, v in state.parameters.items()]
     return TemplateInstanciator(app, templatePath, entityParams, parameters, entities)

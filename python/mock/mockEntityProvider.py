@@ -10,6 +10,7 @@ from pathlib import Path
 from random import randint
 
 from pipelineBatcher.ui.entityProvider import (
+    EntityBase,
     TemplateInfo,
     EntityProvider,
     EntityProviderRegistry
@@ -48,6 +49,7 @@ def list_templates() -> list[TemplateInfo]:
 
 class MockEntityProvider(EntityProvider):
     name = "MockEntityProvider"
+    entityType = "Shot"
     
     def __init__(self):
         self._templates: dict[str, TemplateInfo] = {t.getName(): t for t in list_templates()}
@@ -124,7 +126,7 @@ class MockEntityProvider(EntityProvider):
         })
         return entity_tree
 
-    def fetchEntitiesByGroup(self, templateName: str, group_id: str) -> list[dict]:
+    def fetchEntitiesByGroup(self, templateName: str, group_id: str) -> list[EntityBase]:
         tree = self.getEntitiesTree(templateName)
         entities = []
         if group_id == "seq_001":
@@ -132,21 +134,19 @@ class MockEntityProvider(EntityProvider):
         elif group_id == "seq_002":
             entities = tree[1]["children"]
         elif group_id == "master_A":
-            entities = [{
-                "id"      : "master_a_seq_001",
-                "label"   : "Sequence 001",
-            }]
+            entities = []
         elif group_id == "master_a_seq_001":
             entities = tree[2]["children"][0]["children"]
         group_entities = []
         for e in entities:
             status = ("wtg", "rdy", "ip", "rev", "apr")[randint(0, 4)]
-            group_entities.append({
-                "id"         : e["id"],
-                "name"       : e["label"],
-                "status"     : status,
-                "description": f"Entity {e['id']}"
-            })
+            group_entities.append(EntityBase(
+                entity_type=self.entityType,
+                entity_name=e["label"],
+                id=e["id"],
+                status=status,
+                description=f"Entity {e['id']}"
+            ))
         return group_entities
 
 

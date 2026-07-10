@@ -214,7 +214,8 @@ class PipelineBatcherBackend(QObject):
         try:
             templateIndex = self._state.selected_template.index
             entities = EntityProviderRegistry.fetchEntitiesByGroup(templateIndex, group_id)
-            return json.dumps(entities, ensure_ascii=False)
+            serializedEntities = [e.toDict() for e in entities]
+            return json.dumps(serializedEntities, ensure_ascii=False)
         except Exception as exc:
             logging.error(f"fetchEntitiesByGroup error: {exc}\n{traceback.format_exc()}")
             self.errorOccurred.emit(str(exc))

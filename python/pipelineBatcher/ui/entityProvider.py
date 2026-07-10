@@ -8,27 +8,51 @@ import inspect
 import json
 from pathlib import Path
 from types import SimpleNamespace
+from collections import defaultdict
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, asdict, field
 
 
-CachedEntityById = {}  # id: CachedEntity
-
-class CachedEntity(SimpleNamespace):
+class EntityBase(SimpleNamespace):
     def __init__(self, entity_type, entity_name, **kwargs):
         super().__init__(**kwargs)
         self.entity_type = entity_type
         self.entity_name = entity_name
         if "id" not in kwargs:
             self.id = f"{entity_type.lower()}.{entity_name}"
-        CachedEntityById[self.id] = self  # Keep the new entity in cache
 
     def __contains__(self, item):
         return item in self.__dict__
 
+    def toDict(self):
+        return {
+            "id": self.id,
+            "name": self.entity_name,
+            "status": self.status if "status" in self else "",
+            "description": self.description if "description" in self else ""
+        }
 
-def get_entity(entity_id: str) -> CachedEntity:
-    return CachedEntityById.get(entity_id)
+
+class EntityCache:
+    _cache = defaultdict(dict)  # {templateIndex: {entityId: CachedEntity}}
+
+    @classmethod
+    def add(cls, templateIndex: int, entity: EntityBase):
+        cls._cache[templateIndex][entity.id] = entity
+
+    @classmethod
+    def get(cls, templateIndex: int, entityId: str) -> EntityBase:
+        return cls._cache.get(templateIndex, {}).get(entityId, None)
+
+    @classmethod
+    def contains(cls, templateIndex: int, entityId: str) -> bool:
+        if templateIndex not in cls._cache:
+            return False
+        return entityId in cls._cache[templateIndex]
+
+
+def get_entity(entity_id: str) -> EntityBase:
+    return EntityCache.get(entity_id)
 
 
 @dataclass
@@ -118,7 +142,7 @@ class EntityProvider(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def fetchEntitiesByGroup(self, templateName: str, group_id: str) -> list[dict]:
+    def fetchEntitiesByGroup(self, templateName: str, group_id: str) -> list[EntityBase]:
         """Return entities belonging to group_id for the given entity_type.
 
         Keys:
@@ -192,7 +216,7 @@ class EntityProviderRegistry(object):
         return provider.getEntitiesTree(template.getName())
 
     @classmethod
-    def fetchEntitiesByGroup(cls, templateIndex: int, group_id: str) -> list[dict]:
+    def fetchEntitiesByGroup(cls, templateIndex: int, group_id: str) -> list[EntityBase]:
         """Return entities belonging to group_id for the given entity_type.
 
         Keys:
@@ -206,4 +230,8 @@ class EntityProviderRegistry(object):
         providerName = cls._templateProvider[templateIndex]
         provider = cls._registry[providerName]
         template = cls._templates[templateIndex]
-        return provider.fetchEntitiesByGroup(template.getName(), group_id)
+        entitiesByGroup = provider.fetchEntitiesByGroup(template.getName(), group_id)
+        for entity in entitiesByGroup:
+            if not EntityCache.contains(templateIndex, entity.id):
+                EntityCache.add(templateIndex, entity)
+        return entitiesByGroup
