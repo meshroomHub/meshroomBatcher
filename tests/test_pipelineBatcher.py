@@ -21,11 +21,6 @@ class TestTemplateHelper:
     def teardown_class(cls):
         os.environ = cls.__old_env
 
-    # def test_get_templates_dir(self):
-    #     tpl_dir = TplHelper.get_templates_dir()
-    #     assert Path(tpl_dir).exists()
-    #     assert Path(tpl_dir).stem == "batchPipelines"
-    
     # def test_list_templates(self, tplFolder):
     #     tpls = TplHelper.list_templates(tplFolder)
     #     assert isinstance(tpls, list)

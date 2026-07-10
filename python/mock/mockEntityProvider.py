@@ -54,9 +54,6 @@ class MockEntityProvider(EntityProvider):
     def __init__(self):
         self._templates: dict[str, TemplateInfo] = {t.getName(): t for t in list_templates()}
     
-    def get_template(self, name) -> TemplateInfo:
-        return self._templates.get(name)
-
     def listAvailableTemplates(self) -> list[TemplateInfo]:
         return list(self._templates.values())
 
