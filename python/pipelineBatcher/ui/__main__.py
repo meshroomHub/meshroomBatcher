@@ -45,6 +45,9 @@ HOT_RELOAD_DEBOUNCE_MS = 500
 def parse_args():
     parser = argparse.ArgumentParser(description="Pipeline Batcher UI")
     parser.add_argument(
+        "--mock", action="store_true", help="Add the mock Entity Provider.",
+    )
+    parser.add_argument(
         "-v", "--verbosity",
         default="info",
         choices=["debug", "info", "warning", "error"],
@@ -65,6 +68,16 @@ def parse_args():
     logging.getLogger().addHandler(handler)
 
     return args
+
+
+def add_mock_provider():
+    import importlib.util
+    moduleName = "mockEntityProvider"
+    path = Path(__file__).parent.parent.parent / "mock" / f"{moduleName}.py"
+    spec = importlib.util.spec_from_file_location(moduleName, str(path))
+    foo = importlib.util.module_from_spec(spec)
+    sys.modules[moduleName] = foo
+    spec.loader.exec_module(foo)
 
 
 class PipelineBatcherApp:
@@ -154,6 +167,9 @@ class PipelineBatcherApp:
 
 
 args = parse_args()
+
+if args.mock:
+    add_mock_provider()
 
 # Allow Ctrl+C to kill the app from the terminal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
