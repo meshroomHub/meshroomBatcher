@@ -1,7 +1,7 @@
 {
     "name": "Test template",
-    "description": "Test template.",
-    "template": "{RESOURCES}/test_template.mg",
+    "description": "Test template truc.",
+    "template": "{root}/test_template.mg",
     "input_entity_type": "Shot",
     "input_entity_params": {
         "entity_name": "ShotCode_1:string"

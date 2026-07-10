@@ -22,8 +22,10 @@ from PySide6.QtCore import (
 
 # ========== Imports from current package ==========
 from pipelineBatcher.ui import utilities
-from pipelineBatcher.ui import templates as TemplatesHelper
-from pipelineBatcher.ui import entities as EntitiesHelper
+from pipelineBatcher.ui.entityProvider import (
+    EntityProviderRegistry,
+    TemplateInfo
+)
 
 
 class PipelineBatcherPages(Enum):
@@ -65,8 +67,7 @@ def busy_slot(message: str = ""):
 class PipelineBatcherBackend(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._templates_dir = TemplatesHelper.get_templates_dir()
-        self._templatesIndex = TemplatesHelper.buildTemplatesIndex(self._templates_dir)
+        self._templatesIndex: dict[int, TemplateInfo] = EntityProviderRegistry.getTemplateIndex()
         self._app   = parent
         self.reset()
 
@@ -161,7 +162,7 @@ class PipelineBatcherBackend(QObject):
     @Slot(result=str)
     def listTemplates(self) -> str:
         """Return JSON array of template descriptors."""
-        templates = [self._templatesIndex[i] for i in sorted(self._templatesIndex.keys())]
+        templates = [self._templatesIndex[i].toDict() for i in sorted(self._templatesIndex.keys())]
         return json.dumps(templates, ensure_ascii=False)
 
     @busy_slot("Select the chosen template")
@@ -173,13 +174,13 @@ class PipelineBatcherBackend(QObject):
         tpl = self._templatesIndex.get(index)
         self._state.selected_template = tpl
         # Notify QML so EntityPage can set its entityType before the page transition
-        self._state.entity_type = tpl.get("input_entity_type", "") if tpl else ""
+        self._state.entity_type = tpl.input_entity_type if tpl else ""
         self.templateSelected.emit(self._state.entity_type)
         self.next()
 
     @busy_slot("Fetching entities")
-    @Slot(str, result=str)
-    def getEntitiesTree(self, entity_type: str) -> str:
+    @Slot(result=str)
+    def getEntitiesTree(self) -> str:
         """Return a JSON array representing the navigation tree.
 
         Each item on the dict has the following keys:
@@ -188,9 +189,11 @@ class PipelineBatcherBackend(QObject):
         - icon: (optional) icon to show before the label
         - children: leaf nodes (eg. for Asset -> each asset type)
         """
-        logging.info(f"Get entities tree for entity type: {entity_type}")
         try:
-            tree = EntitiesHelper.get_entities_tree(entity_type)
+            templateIndex = self._state.selected_template.index
+            templateName = EntityProviderRegistry.getTemplateName(templateIndex)
+            logging.info(f"Get entities tree for template index: {templateName}")
+            tree = EntityProviderRegistry.getEntityTree(templateIndex)
             return json.dumps(tree, ensure_ascii=False)
         except Exception as exc:
             logging.error(f"getEntitiesTree error: {exc}\n{traceback.format_exc()}")
@@ -198,8 +201,8 @@ class PipelineBatcherBackend(QObject):
             return json.dumps([])
 
     # Not a busy slot because it's quick
-    @Slot(str, str, result=str)
-    def fetchEntitiesByGroup(self, entity_type: str, group_id: str) -> str:
+    @Slot(str, result=str)
+    def fetchEntitiesByGroup(self, group_id: str) -> str:
         """Return a JSON array of entity dicts that belong to a group ID within entity_type.
         
         Each item on the dict has the following keys:
@@ -209,7 +212,8 @@ class PipelineBatcherBackend(QObject):
         - description: (optional) description shown in the third column
         """
         try:
-            entities = EntitiesHelper.fetch_entities_by_group(entity_type, group_id)
+            templateIndex = self._state.selected_template.index
+            entities = EntityProviderRegistry.fetchEntitiesByGroup(templateIndex, group_id)
             return json.dumps(entities, ensure_ascii=False)
         except Exception as exc:
             logging.error(f"fetchEntitiesByGroup error: {exc}\n{traceback.format_exc()}")
@@ -231,7 +235,7 @@ class PipelineBatcherBackend(QObject):
         mg_path = self.getSelectedTemplatePath()
         try:
             node_instance, param_name = utilities.parseNodeParam(node_param)
-            info = TemplatesHelper.getMgParameterInfo(mg_path, node_instance, param_name)
+            info = utilities.getMgParameterInfo(mg_path, node_instance, param_name)
             return json.dumps(info, ensure_ascii=False)
         except Exception as exc:
             logging.warning(f"getParamInfo error: {exc}")

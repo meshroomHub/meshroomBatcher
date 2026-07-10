@@ -162,8 +162,6 @@ class EntityProviderRegistry(object):
 
     @classmethod
     def getTemplateIndex(cls) -> dict[int, TemplateInfo]:
-        print("template index:")
-        print(cls._templates)
         return cls._templates
 
     @classmethod

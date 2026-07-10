@@ -4,6 +4,7 @@ Add a menu for prod tools.
 
 # ========== Py standard lib imports ==========
 import os
+import sys
 import logging
 from pathlib import Path
 
@@ -21,6 +22,16 @@ from pipelineBatcher.ui import app as BatcherUI
 
 
 QML_DIR = Path(__file__).parent.parent / "ui" / "qml"
+
+
+if os.getenv("REGISTER_MOCK_ENTITYPROVIDER") == "1":
+    import importlib.util
+    moduleName = "mockEntityProvider"
+    path = Path(__file__).parent.parent.parent / "mock" / f"{moduleName}.py"
+    spec = importlib.util.spec_from_file_location(moduleName, str(path))
+    foo = importlib.util.module_from_spec(spec)
+    sys.modules[moduleName] = foo
+    spec.loader.exec_module(foo)
 
 
 # 

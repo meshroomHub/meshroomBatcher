@@ -13,6 +13,7 @@ from collections import namedtuple
 from PySide6.QtCore import QObject, Slot, Signal
 
 # ========== Meshroom imports ==========
+from meshroom.core import pluginManager
 from meshroom.core.node import Position
 from meshroom.core.graph import Graph
 
@@ -21,10 +22,88 @@ if TYPE_CHECKING:
     from meshroom.ui.graph import UIGraph
 
 # ========== Imports from current package ==========
-from pipelineBatcher.ui.entities import get_entity, CachedEntity
+from pipelineBatcher.ui.entityProvider import get_entity, CachedEntity, TemplateInfo
 
 
 OverrideParameter = namedtuple("OverrideParameter", ("node_instance", "parameter_name", "value"))
+
+
+MR_TYPE_MAP = {
+    "StringParam": "string",
+    "File": "file",
+    "IntParam": "int",
+    "FloatParam": "float",
+    "BoolParam": "bool",
+    "ChoiceParam": "choice",
+    "ColorParam": "string",
+}
+
+
+def getMgParameterInfo(path: str, nodeInstance: str, paramName: str) -> dict:
+    """Introspect a Meshroom .mg file to determine the type of a parameter.
+
+    Args:
+        path:         Absolute path to the .mg template file.
+        nodeInstance: Node name as it appears in the graph (e.g. "CameraInit_1").
+        paramName:    Attribute name on that node (e.g. "viewpoints").
+
+    Returns a dict:
+        - type: "string" | "int" | "float" | "bool" | "choice" | "file",
+        - node: node instance name
+        - paramName: parameter name
+        - default: default value or None
+        - choices: for choice widget : all possible choices
+    """
+    
+    try:
+        with open(path, "r") as f:
+            mg = json.load(f)
+
+        nodes = mg.get("graph", {})
+        if nodeInstance not in nodes:
+            logging.warning(
+                f"Node '{nodeInstance}' not found in '{path}'. "
+                f"Available: {list(nodes.keys())}"
+            )
+            return None
+
+        node_data = nodes[nodeInstance]
+        node_type = node_data.get("nodeType", "")
+
+        # Try to resolve the node descriptor from Meshroom's registry
+        try:
+            # g = Graph("").load(template)
+            # g._nodes["GraphInput"].getAttributes()
+            nodeDescClass = pluginManager.getRegisteredNodePlugin(node_type).nodeDescriptor
+            if nodeDescClass is None:
+                return None
+
+            nodeDesc = nodeDescClass()
+            for attrDesc in nodeDesc.inputs:
+                if attrDesc.name == paramName:
+                    type_name = type(attrDesc).__name__
+                    mapped = MR_TYPE_MAP.get(type_name, "string")
+                    result = {
+                        "type": mapped,
+                        "node": nodeInstance,
+                        "paramName": paramName,
+                        "default": attrDesc.value if hasattr(attrDesc, "value") else None,
+                        "choices": [],
+                    }
+                    if mapped == "choice" and hasattr(attrDesc, "values"):
+                        result["choices"] = list(attrDesc.values)
+                    return result
+        except Exception as inner:
+            logging.debug(f"Descriptor lookup failed: {inner}")
+
+        return None
+
+    except Exception as exc:
+        logging.warning(
+            f"get_param_info failed for "
+            f"'{nodeInstance}:{paramName}' in '{path}': {exc}"
+        )
+        return None
 
 
 def parseNodeParam(nodeParam: str):
@@ -39,7 +118,7 @@ def parseNodeParam(nodeParam: str):
 @dataclass
 class TemplateCreationState:
     entity_type: str = ""
-    selected_template: dict | None = None
+    selected_template: TemplateInfo | None = None
     selected_entities: list[str] = field(default_factory=list)
     parameters: dict[str, Any] = field(default_factory=dict)
 

@@ -71,7 +71,7 @@ Item {
         treeData    = []
         activeGroupId = ""
 
-        var raw = pipelineBatcherBackend.getEntitiesTree(entityType)
+        var raw = pipelineBatcherBackend.getEntitiesTree()
         try {
             if (!raw || raw === "" || raw === "null") {
                 console.error("getEntitiesTree: empty or null raw string")
@@ -98,7 +98,7 @@ Item {
         activeGroupId = groupId
         entityList = []
 
-        var raw = pipelineBatcherBackend.fetchEntitiesByGroup(entityType, groupId)
+        var raw = pipelineBatcherBackend.fetchEntitiesByGroup(groupId)
         try {
             entityList = JSON.parse(raw)
         } catch(e) {
