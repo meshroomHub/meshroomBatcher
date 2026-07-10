@@ -1,8 +1,8 @@
 {
-    "name": "Test template",
-    "description": "Test template truc.",
+    "name": "Create Sequence Scene",
+    "description": "Create a scene from a Sequence.",
     "template": "{root}/test_template.mg",
-    "input_entity_type": "Shot",
+    "input_entity_type": "Sequence",
     "input_entity_params": {
         "entity_name": "ShotCode_1:string"
     },

@@ -1,0 +1,14 @@
+{
+    "name": "Create Version Scene",
+    "description": "Create a scene from a version.",
+    "template": "{root}/test_template.mg",
+    "input_entity_type": "Version",
+    "input_entity_params": {
+        "entity_name": "ShotCode_1:string"
+    },
+    "parameters": [
+        "InputString_1:string",
+        "InputInt_1:integer",
+        "InputFile_1:inputFile"
+    ]
+}

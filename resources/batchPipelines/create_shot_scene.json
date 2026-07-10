@@ -1,0 +1,14 @@
+{
+    "name": "Create Shot Scene",
+    "description": "Create a scene from a shot.",
+    "template": "{root}/test_template.mg",
+    "input_entity_type": "Shot",
+    "input_entity_params": {
+        "entity_name": "ShotCode_1:string"
+    },
+    "parameters": [
+        "InputString_1:string",
+        "InputInt_1:integer",
+        "InputFile_1:inputFile"
+    ]
+}
