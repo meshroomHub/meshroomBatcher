@@ -146,5 +146,10 @@ class MockEntityProvider(EntityProvider):
             ))
         return group_entities
 
+    def generateScenePath(self, templateName: str, entity: EntityBase):
+        print("generateScenePath")
+        print("  templateName:", templateName)
+        print("  entity      :", entity)
+        return ""
 
 EntityProviderRegistry.register(MockEntityProvider())

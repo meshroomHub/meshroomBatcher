@@ -153,11 +153,18 @@ class EntityProvider(ABC):
         """
         raise NotImplementedError()
 
+    @abstractmethod
+    def generateScenePath(self, templateName: str, entity: EntityBase):
+        raise NotImplementedError()
+
 
 class EntityProviderRegistry(object):
-    _registry: dict[str, EntityProvider] = dict()  # provider name to provider object
-    _templates: dict[int, TemplateInfo] = dict()   # template index to template dict
-    _templateProvider: dict[int, str] = dict()     # template index to provider name
+    _registry: dict[str, EntityProvider] = dict()
+    """provider name to provider object"""
+    _templates: dict[int, TemplateInfo] = dict()
+    """template index to template dict"""
+    _templateProvider: dict[int, str] = dict()
+    """template index to provider name"""
 
     @classmethod
     def register(cls, provider: EntityProvider):
@@ -193,6 +200,13 @@ class EntityProviderRegistry(object):
         if templateIndex not in cls._templateProvider:
             return "unknown"
         return cls._templates[templateIndex].getName()
+    
+    @classmethod
+    def getProviderFromTemplate(cls, templateIndex: int) -> EntityProvider:
+        if templateIndex not in cls._templateProvider:
+            raise KeyError(f"No provider for template {templateIndex}")
+        providerName = cls._templateProvider[templateIndex]
+        return cls._registry[providerName]
 
     @classmethod
     def listTemplates(cls):

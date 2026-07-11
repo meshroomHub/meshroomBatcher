@@ -21,11 +21,9 @@ from PySide6.QtCore import (
 )
 
 # ========== Imports from current package ==========
-from pipelineBatcher.ui import utilities
-from pipelineBatcher.ui.entityProvider import (
-    EntityProviderRegistry,
-    TemplateInfo
-)
+from pipelineBatcher.ui.utilities import parseNodeParam, getMgParameterInfo
+from pipelineBatcher.ui.entityProvider import EntityProviderRegistry, TemplateInfo
+from pipelineBatcher.ui.instanciation import TemplateCreationState, TemplateInstanciator
 
 
 class PipelineBatcherPages(Enum):
@@ -75,7 +73,7 @@ class PipelineBatcherBackend(QObject):
         self._busy  = False
         self._busyMessage = ""
         self._page  = PipelineBatcherPages.PAGE_TEMPLATE
-        self._state = utilities.TemplateCreationState()
+        self._state = TemplateCreationState()
         self._instanciator = None
 
     def _get_busy(self) -> bool:
@@ -144,7 +142,7 @@ class PipelineBatcherBackend(QObject):
     @busy_slot("Build pipeline instanciator")
     def _prepareInstanciator(self):
         try:
-            self._instanciator = utilities.build_instanciator(self._app, self._state)
+            self._instanciator = TemplateInstanciator(self._app, self._state)
             self.instanciatorChanged.emit()
         except Exception as exc:
             logging.error(exc)
@@ -235,8 +233,8 @@ class PipelineBatcherBackend(QObject):
         """
         mg_path = self.getSelectedTemplatePath()
         try:
-            node_instance, param_name = utilities.parseNodeParam(node_param)
-            info = utilities.getMgParameterInfo(mg_path, node_instance, param_name)
+            node_instance, param_name = parseNodeParam(node_param)
+            info = getMgParameterInfo(mg_path, node_instance, param_name)
             return json.dumps(info, ensure_ascii=False)
         except Exception as exc:
             logging.warning(f"getParamInfo error: {exc}")

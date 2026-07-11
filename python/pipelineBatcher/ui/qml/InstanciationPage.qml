@@ -42,6 +42,7 @@ Item {
 
         // Create nodes
         var nodes = instanciator.createInstanceForEntity(_currentEntity, offset)
+        console.log("nodes", nodes)
 
         if (!nodes || nodes.length === 0) {
             statusLabel = "Error on entity " + _currentEntity
@@ -49,31 +50,33 @@ Item {
             return
         }
 
-        // Compute bounding box
-        var padding = _currentScene.layout.gridSpacing * 0.5
-        var minX =  Number.MAX_VALUE,  minY =  Number.MAX_VALUE
-        var maxX = -Number.MAX_VALUE,  maxY = -Number.MAX_VALUE
+        if (instanciator.mode == "LIVE_SCENE") {
+            // Compute bounding box
+            var padding = _currentScene.layout.gridSpacing * 0.5
+            var minX =  Number.MAX_VALUE,  minY =  Number.MAX_VALUE
+            var maxX = -Number.MAX_VALUE,  maxY = -Number.MAX_VALUE
 
-        for (var k = 0; k < nodes.length; k++) {
-            var n = nodes[k]
-            var nw = n.nodeWidth  > 0 ? n.nodeWidth  : _currentScene.layout.nodeWidth
-            var nh = n.nodeHeight > 0 ? n.nodeHeight : _currentScene.layout.nodeHeight
-            minX = Math.min(minX, n.x);  minY = Math.min(minY, n.y)
-            maxX = Math.max(maxX, n.x + nw);  maxY = Math.max(maxY, n.y + nh)
+            for (var k = 0; k < nodes.length; k++) {
+                var n = nodes[k]
+                var nw = n.nodeWidth  > 0 ? n.nodeWidth  : _currentScene.layout.nodeWidth
+                var nh = n.nodeHeight > 0 ? n.nodeHeight : _currentScene.layout.nodeHeight
+                minX = Math.min(minX, n.x);  minY = Math.min(minY, n.y)
+                maxX = Math.max(maxX, n.x + nw);  maxY = Math.max(maxY, n.y + nh)
+            }
+
+            var bboxX = minX - padding
+            var bboxY = minY - 2 * padding
+            var bboxW = Math.round(maxX - minX + 2 * padding)
+            var bboxH = Math.round(maxY - minY + 3 * padding)
+
+            // Create Backdrop wrapping the created pipeline instance
+            var backdrop = _currentScene.addBackdropNode(Qt.point(bboxX, bboxY), bboxW, bboxH)
+            // Set backdrop label
+            instanciator.setBackdropName(backdrop, instanciator.entityLabel(_currentEntity))
+            // Update the Y padding for next instance and iterate
+            offset = Math.round(maxY + padding * 4)
         }
 
-        var bboxX = minX - padding
-        var bboxY = minY - 2 * padding
-        var bboxW = Math.round(maxX - minX + 2 * padding)
-        var bboxH = Math.round(maxY - minY + 3 * padding)
-
-        // Create Backdrop wrapping the created pipeline instance
-        var backdrop = _currentScene.addBackdropNode(Qt.point(bboxX, bboxY), bboxW, bboxH)
-        // Set backdrop label
-        instanciator.setBackdropName(backdrop, instanciator.entityLabel(_currentEntity))
-
-        // Update the Y padding for next instance and iterate
-        offset = Math.round(maxY + padding * 4)
         _currentEntity++
         iterTimer.restart()
     }
