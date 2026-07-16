@@ -11,10 +11,9 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, asdict, field
 
-from pipelineBatcher.ui.utilities import parseNodeParam
+from pipelineBatcher.utilities import parseNodeParam
 
 from meshroom.core.graph import Graph
-from meshroom.core.node import Position
 
 
 class EntityBase(SimpleNamespace):

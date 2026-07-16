@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
-from pipelineBatcher.ui import utilities
-# from pipelineBatcher.ui import entityProvider as EntityHelper
+from pipelineBatcher import utilities
 import meshroom.core
 
 
@@ -13,7 +12,6 @@ class TestTemplateHelper:
     @classmethod
     def setup_class(cls):
         cls.__old_env = os.environ
-        os.environ["PIPELINE_RESOURCES"] = str(TEST_RESOURCES)
         meshroom.core.initNodes()
         meshroom.core.initPipelines()
 
@@ -21,22 +19,6 @@ class TestTemplateHelper:
     def teardown_class(cls):
         os.environ = cls.__old_env
 
-    # def test_list_templates(self, tplFolder):
-    #     tpls = TplHelper.list_templates(tplFolder)
-    #     assert isinstance(tpls, list)
-    #     for tpl in tpls:
-    #         assert isinstance(tpl, dict)
-    #         template = tpl["template"]
-    #         assert Path(template).exists()
-    #         assert Path(template).suffix == ".mg"
-    #         entity_type = tpl["input_entity_type"]
-    #         assert entity_type in (
-    #             "Asset", "Shot", "Sequence", "Version" 
-    #         )
-    #         input_entity_params = tpl["input_entity_params"]
-    #         assert isinstance(input_entity_params, dict)
-    #         assert len(input_entity_params) >= 1
-    
     def test_getMgParameterInfo(self, createSceneTemplateMg):
         params = {
             ("ShotCode_1", "string"): "string",

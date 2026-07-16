@@ -45,7 +45,7 @@ Then the UI launches.
 To implement a new provider you must write a class inheriting `EntityProvider`, and then register it in the `EntityProviderRegistry`:
 
 ```python
-from pipelineBatcher.ui.entityProvider import EntityBase, TemplateInfo, EntityProvider, EntityProviderRegistry
+from pipelineBatcher.entityProvider import EntityBase, TemplateInfo, EntityProvider, EntityProviderRegistry
 
 class MyEntityProvider(EntityProvider):
     name = "MyEntityProvider"

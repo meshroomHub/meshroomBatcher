@@ -16,7 +16,7 @@ from PySide6.QtCore import QUrl
 from meshroom.ui.menu import MeshroomMenuManager, Menu, MenuCallback
 
 # ========== Imports from current package ==========
-from pipelineBatcher.ui.utilities import import_provider
+from pipelineBatcher.utilities import import_provider
 from pipelineBatcher.ui import app as BatcherUI
 
 

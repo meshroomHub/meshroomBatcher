@@ -26,7 +26,7 @@ from meshroom.common import strtobool
 from meshroom.ui.utils import QFileSystemWatcher
 
 # ========== Imports from current package ==========
-from pipelineBatcher.ui.utilities import import_provider
+from pipelineBatcher.utilities import import_provider
 from pipelineBatcher.ui.app import PipelineBatcherBackend
 
 

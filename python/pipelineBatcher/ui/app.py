@@ -29,8 +29,8 @@ from PySide6.QtCore import (
 from meshroom import _MESHROOM_ROOT
 
 # ========== Imports from current package ==========
-from pipelineBatcher.ui.utilities import parseNodeParam, getMgParameterInfo
-from pipelineBatcher.ui.entityProvider import EntityProviderRegistry, TemplateInfo
+from pipelineBatcher.utilities import parseNodeParam, getMgParameterInfo
+from pipelineBatcher.entityProvider import EntityProviderRegistry, TemplateInfo
 from pipelineBatcher.ui.instanciation import TemplateCreationState, TemplateInstanciator
 
 

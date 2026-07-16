@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 from random import randint
 
-from pipelineBatcher.ui.entityProvider import (
+from pipelineBatcher.entityProvider import (
     EntityBase,
     TemplateInfo,
     EntityProvider,

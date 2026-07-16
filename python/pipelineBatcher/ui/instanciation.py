@@ -31,8 +31,8 @@ if TYPE_CHECKING:
     from meshroom.ui.graph import UIGraph
 
 # ========== Imports from current package ==========
-from pipelineBatcher.ui.utilities import parseNodeParam
-from pipelineBatcher.ui.entityProvider import EntityBase, TemplateInfo, EntityProviderRegistry, EntityCache
+from pipelineBatcher.utilities import parseNodeParam
+from pipelineBatcher.entityProvider import EntityBase, TemplateInfo, EntityProviderRegistry, EntityCache
 
 
 OverrideParameter = namedtuple("OverrideParameter", ("node_instance", "parameter_name", "value"))
