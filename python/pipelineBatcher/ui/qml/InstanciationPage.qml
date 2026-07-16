@@ -1,11 +1,18 @@
-// InstanciationPage.qml
-// Uses the _currentScene context property set by MeshroomApp
+// 
+// Instanciation work in 2 modes:
+// If the UI is opened in Mehsroom then it uses the _currentScene
+// context property set by MeshroomApp to create the graph
+// in the current scene?
+// If the UI is opened in standalone mode, then instanciation
+// take place in different files.
+// 
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import MaterialIcons 2.2
+import PBComponents 1.0
 
 
 Item {
@@ -32,7 +39,7 @@ Item {
 
     // --- Callback for opening a created scene ---
     function openScene(filePath) {
-        // To be implemented by caller
+        // TODO
     }
 
     // --- Run on an entity ---
@@ -140,7 +147,7 @@ Item {
                     MaterialLabel {
                         text: MaterialIcons.movie
                         font.pixelSize: 18
-                        color: parent.parent.hovered ? "#43d668" : "#e0e0e0"
+                        color: parent.parent.hovered ? PBColors.hoveredText : PBColors.textColor
                     }
 
                     Label {
@@ -160,8 +167,8 @@ Item {
 
                 background: Rectangle {
                     radius: 4
-                    color: parent.hovered ? "#33ffffff" : "transparent"
-                    border.color: "#22ffffff"
+                    color: parent.hovered ? Qt.lighter(PBColors.secondary, 1.2) : "transparent"
+                    border.color: PBColors.primary
                     border.width: 1
                 }
             }
@@ -178,8 +185,8 @@ Item {
             NavigationButton {
                 text: "Close the UI"
                 navIcon: MaterialIcons.celebration
-                Material.background: hovered ? "#43d668" : "#2a67ad" 
-                Material.foreground: hovered ? "#424242" : "#e0e0e0"
+                Material.background: hovered ? PBColors.startButton     : Material.accent
+                Material.foreground: hovered ? PBColors.startButtonText : Material.textColor
                 scale: hovered ? 1.25 : 1.2
                 Behavior on scale {
                     NumberAnimation { duration: 100 }

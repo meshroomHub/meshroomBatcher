@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import MaterialIcons 2.2
+import PBComponents 1.0
 
 Item {
     id: root
@@ -10,7 +11,6 @@ Item {
     property var    nodeData:      ({})
     property string activeGroupId: ""
     property int    depth:         0
-    property color textColor
 
     signal groupSelected(string id)
 
@@ -48,9 +48,7 @@ Item {
         height: 34
         radius: 4
 
-        color:  isActive ? "#1a3a6e" : (hoverArea.containsMouse ? "#2a2a2a" : "transparent")
-
-        Behavior on color { ColorAnimation { duration: 100 } }
+        color:  isActive ? PBColors.selectedBackground : (hoverArea.containsMouse ? PBColors.hoverBackground : "transparent")
 
         Rectangle {
             visible: isActive
@@ -83,7 +81,7 @@ Item {
                     visible: root.hasChildren
                     text: root.expanded ? MaterialIcons.arrow_drop_down : MaterialIcons.arrow_right
                     font.pixelSize: 10
-                    color: Qt.lighter(root.textColor, 1.5)
+                    color: PBColors.textColor
                 }
             }
 
@@ -91,7 +89,7 @@ Item {
                 visible: !!nodeData.icon
                 text:    nodeData.icon || ""
                 font.pixelSize: 14
-                color: isActive ? "white" : Qt.lighter(root.textColor, 1.5)
+                color: PBColors.textColor
             }
 
             Label {
@@ -99,7 +97,7 @@ Item {
                 text: nodeData.label || nodeData.id || ""
                 font.pixelSize: 13
                 font.weight: isActive ? Font.Medium : Font.Normal
-                color: isActive ? "white" : Qt.lighter(root.textColor, 1.5)
+                color: PBColors.textColor
                 elide: Text.ElideRight
             }
 
@@ -108,13 +106,13 @@ Item {
                 height: 18
                 width:  childCountLabel.implicitWidth + 10
                 radius: 9
-                color:  "#333"
+                color:  PBColors.badgeBackground
                 Label {
                     id: childCountLabel
                     anchors.centerIn: parent
                     text: root.entityCount
                     font.pixelSize: 10
-                    color: Qt.lighter(root.textColor, 1.5)
+                    color: PBColors.textColor
                 }
             }
         }

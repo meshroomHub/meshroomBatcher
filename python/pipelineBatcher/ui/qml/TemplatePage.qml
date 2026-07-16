@@ -75,7 +75,7 @@ Item {
                 Material.background: hovered ? Material.Pink : Material.Red
                 highlighted: hovered
                 onClicked: pipelineBatcherBackend.cancel()
-                textColor: "#000000"
+                textColor: "black"
             }
 
             Item { Layout.fillWidth: true }
@@ -84,7 +84,6 @@ Item {
                 text: "Next"
                 navIcon: MaterialIcons.chevron_right
                 navIconPosition: "right"
-                Material.accent: "#230f91"
                 highlighted: hovered
                 enabled: selectedIndex >= 0
                 onClicked: {

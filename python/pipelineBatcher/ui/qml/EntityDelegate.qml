@@ -9,17 +9,12 @@ Rectangle {
 
     property var entityData  // {id, name, status, description, **kwargs}
     property bool checked: false
-    property color textColor
 
     signal toggled(string id)
 
     height: 40
-    color: checked ? "#1a3a6e" : (hoverArea.containsMouse ? "#262626" : "transparent")
+    color: checked ? PBColors.selectedBackground : (hoverArea.containsMouse ? PBColors.rowHoverBackground : "transparent")
     radius: 4
-
-    Behavior on color {
-        ColorAnimation { duration: 150 }
-    }
 
     // Check from the whole line
     MouseArea {
@@ -34,7 +29,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         width: parent.width
         height: 1
-        color: "#2a2a2a"
+        color: PBColors.separator
     }
 
     RowLayout {
@@ -60,7 +55,7 @@ Rectangle {
             text: entityData.name || entityData.id
             font.pixelSize: 13
             font.weight: root.checked ? Font.Medium : Font.Normal
-            color: root.checked ? "white" : Qt.lighter(root.textColor, 1.5)
+            color: Qt.lighter(PBColors.textColor, root.checked ? 0 : 1.4)
             elide: Text.ElideRight
             leftPadding: 4
         }
@@ -86,7 +81,7 @@ Rectangle {
                     text: entityData.status || ""
                     font.pixelSize: 10
                     font.weight: Font.Medium
-                    color: "white"
+                    color: PBColors.primaryText
                 }
             }
         }
@@ -98,7 +93,7 @@ Rectangle {
             verticalAlignment: Text.AlignVCenter  // Centers text within the bounding box
             text: entityData ? (entityData.description || "") : ""
             font.pixelSize: 12
-            color: root.textColor
+            color: PBColors.tertiaryText
             elide: Text.ElideRight
         }
     }

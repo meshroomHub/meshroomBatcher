@@ -3,7 +3,9 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import Qt.labs.platform 1.0 as Platform
+import QtQuick.Dialogs
 import MaterialIcons 2.2
+import PBComponents 1.0
 
 Item {
     id: root
@@ -43,7 +45,7 @@ Item {
         anchors.margins: 4
         color: "transparent"
         border.width: 1
-        border.color: Qt.rgba(1, 1, 1, 0.15)
+        border.color: PBColors.panelBorder
         radius: 6
     }
 
@@ -58,7 +60,8 @@ Item {
         spacing: 16
 
         RowLayout {
-            Layout.preferredWidth: 220
+            Layout.preferredWidth: 300
+            Layout.fillWidth: false
             spacing: 4
 
             Label {
@@ -136,19 +139,6 @@ Item {
                 text: String(root.paramData.default || "")
                 placeholderText: "Path..."
                 selectByMouse: true
-            }
-            Button {
-                text: "..."
-                flat: true
-                ToolTip.text: "Browse..."
-                ToolTip.visible: hovered
-                onClicked: folderDialog.open()
-            }
-            Platform.FolderDialog {
-                id: folderDialog
-                onAccepted: {
-                    pathField.text = folder.toString().replace("file://", "")
-                }
             }
         }
     }

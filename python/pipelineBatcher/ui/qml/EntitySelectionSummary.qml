@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import MaterialIcons 2.2
+import PBComponents 1.0
 
 Rectangle {
     id: root
@@ -17,7 +18,7 @@ Rectangle {
 
     height: 48
     radius: 8
-    color: "#1a2a3a"
+    color: PBColors.interpolate(Material.backgroundColor, Material.accent, 0.2)
     border.color: Material.accent
     border.width: 1
     clip: true
@@ -61,8 +62,8 @@ Rectangle {
                         height: 26
                         width: selectedItemLabel.implicitWidth + 28
                         radius: 13
-                        color: "#1e3a5f"
-                        border.color: "#2a5080"
+                        color: PBColors.secondary
+                        border.color: Qt.darker(PBColors.secondary, 1.4)
                         border.width: 1
                         anchors.verticalCenter: parent.verticalCenter
 
@@ -78,7 +79,7 @@ Rectangle {
                                 id: selectedItemLabel
                                 text: modelData
                                 font.pixelSize: 11
-                                color: "#cce"
+                                color: PBColors.textOnSecondary
                                 elide: Text.ElideRight
                                 Layout.maximumWidth: 120
                             }

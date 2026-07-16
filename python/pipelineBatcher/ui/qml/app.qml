@@ -15,12 +15,19 @@ ApplicationWindow {
 
     property bool darkTheme: true
 
+    // Create a binding to update PBColors accordingly
+    Binding {
+        target: PBColors
+        property: "isDark"
+        value: root.darkTheme
+    }
+
     Material.theme: darkTheme ? Material.Dark : Material.Light
-    Material.accent: Material.Blue
-    Material.primary: "#2b58ac"  // Toolbar color
+    Material.accent: PBColors.accent
+    Material.primary: PBColors.primary  // Toolbar color
 
     // Keep on top of Meshroom main window
-    flags: Qt.Window | Qt.WindowStaysOnTopHint
+    flags: Qt.Window  // | Qt.WindowStaysOnTopHint
 
     // --- Toolbar ---
     header: ToolBar {
@@ -28,8 +35,6 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.leftMargin: 12
             anchors.rightMargin: 12
-
-            Material.background: "#0e1b64"
 
             Switch {
                 Layout.fillHeight: true
@@ -46,7 +51,7 @@ ApplicationWindow {
                 contentItem: Text {
                     text: parent.text
                     font: parent.font
-                    color: root.darkTheme ? "#ccc" : "#fff"
+                    color: PBColors.primaryText
                     verticalAlignment: Text.AlignVCenter
                     // Fine tuned padding
                     topPadding: 5
@@ -92,7 +97,7 @@ ApplicationWindow {
                         width: 22
                         height: 22
                         radius: 11
-                        color: index <= stack.currentIndex ? Material.accent : "#555"
+                        color: index <= stack.currentIndex ? Material.accent : PBColors.grey
                         Label {
                             anchors.centerIn: parent
                             text: index + 1
@@ -105,14 +110,14 @@ ApplicationWindow {
                     Label {
                         text: modelData
                         font.pixelSize: 11
-                        color: index <= stack.currentIndex ? "white" : "#888"
+                        color: index <= stack.currentIndex ? "white" : PBColors.secondaryText
                     }
 
                     // Connector line
                     Rectangle {
                         visible: index < stepsIndicator.count - 1
                         width: 18; height: 2
-                        color: index < stack.currentIndex ? Material.accent : "#555"
+                        color: index < stack.currentIndex ? Material.accent : PBColors.grey
                     }
                 }
             }
