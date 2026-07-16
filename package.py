@@ -64,7 +64,6 @@ with scope("config") as config:
 
 def commands():
     env.PYTHONPATH.append("{this.root}/python")
-    # env.REGISTER_MOCK_ENTITYPROVIDER="1"
     # Menu
     env.MESHROOM_PLUGINS_PATH.append("{this.root}/python/pipelineBatcher")
     # Alias

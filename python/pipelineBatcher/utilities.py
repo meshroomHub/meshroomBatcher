@@ -21,7 +21,6 @@ OverrideParameter = namedtuple("OverrideParameter", ("node_instance", "parameter
 def import_provider(modulePath: str):
     import sys
     import importlib.util
-    moduleName = "mockEntityProvider"
     moduleName = Path(modulePath).stem
     spec = importlib.util.spec_from_file_location(moduleName, str(modulePath))
     foo = importlib.util.module_from_spec(spec)

@@ -24,7 +24,7 @@ QML_DIR = Path(__file__).parent.parent / "ui" / "qml"
 
 
 if os.getenv("REGISTER_MOCK_ENTITYPROVIDER") == "1":
-    path = Path(__file__).parent.parent.parent / "mock" / "mockEntityProvider.py"
+    path = Path(__file__).parent.parent.parent.parent / "mock" / "mockEntityProvider.py"
     import_provider(str(path))
 
 

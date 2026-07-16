@@ -40,7 +40,7 @@ Then the UI launches.
 ## How to implement a new Entity Provider
 
 > [!TIP]
-> An `EntityProvider` demo file can be found [here](./python/mock/mockEntityProvider.py)
+> An `EntityProvider` demo can be found [here](./mock/mockEntityProvider.py)
 
 To implement a new provider you must write a class inheriting `EntityProvider`, and then register it in the `EntityProviderRegistry`:
 

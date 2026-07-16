@@ -70,7 +70,7 @@ def parse_args():
 
 
 def add_mock_provider():
-    path = Path(__file__).parent.parent.parent / "mock" / "mockEntityProvider.py"
+    path = Path(__file__).parent.parent.parent.parent / "mock" / "mockEntityProvider.py"
     import_provider(str(path))
 
 
