@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
+
 """
 Helpers for the Pipeline Batcher UI
 """
 
 # ========== Py standard lib imports ==========
+import re
+import glob
 import json
 from pathlib import Path
 from collections import namedtuple
@@ -96,3 +100,64 @@ def parseNodeParam(nodeParam: str):
     if len(parts) != 2:
         raise ValueError(f"Expected 'NodeInstance:paramName', got '{nodeParam}'")
     return (parts[0].strip(), parts[1].strip())
+
+
+class PathTemplate:
+    """
+    Simple Path Template generation helper
+    It is built from a template string : `{root}/test/path/{fieldNameA}/{fieldNameB}-v{version}.ext`
+    And provide the following functions:
+    - `list_files`: list all versions of a file matching the template and required fields.
+    - `getNextPath`: get the file path for the next version.
+    """
+
+    def __init__(self, template: str):
+        self.template = template
+        self.fields = re.findall(r'\{(\w+)\}', template)
+
+    def checkFields(self, data: dict):
+        missing = [f for f in self.fields if f != 'version' and f not in data]
+        if missing:
+            raise ValueError(f"Missing fields: {missing}")
+
+    def applyFields(self, data: dict, versionWildcard: str = None) -> str:
+        """ Generate a path from the template and fields.
+        A wildcard or specific pattern can be used for the version field.
+        """
+        path = self.template
+        for field in self.fields:
+            if field == 'version':
+                version = versionWildcard if versionWildcard else data.get('version', '{version}')
+                path = path.replace('{version}', version)
+            else:
+                path = path.replace(f'{{{field}}}', str(data[field]))
+        return path
+
+    def listFiles(self, data: dict) -> list[str]:
+        """ List all files corresponding to the template and given fields. """
+        self.checkFields(data)
+        pattern = self.applyFields(data, versionWildcard='*')
+        return sorted(glob.glob(pattern))
+    
+    def getExistingVersions(self, data: dict) -> list[int]:
+        """ Get existing versions on disk for the template and given fields. """
+        self.checkFields(data)
+        existing = self.listFiles(data)
+        if not existing:
+            return []
+
+        # Extract version numbers from existing files
+        versionPattern = self.applyFields(data, versionWildcard=r'(\d+)')
+        versions = [
+            int(m.group(1))
+            for f in existing
+            if (m := re.search(versionPattern, f))
+        ]
+        return versions
+
+    def getNextPath(self, data: dict) -> str:
+        """ Get the path with an incremented version from what we already have on disk. """
+        self.checkFields(data)
+        versions = self.getExistingVersions(data)
+        vup = max(versions) + 1 if versions else 1
+        return self.applyFields({**data, 'version': str(vup).zfill(3)})

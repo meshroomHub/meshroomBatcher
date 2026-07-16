@@ -5,63 +5,19 @@ mockEntityProvider - Mock class to provide fake data for the batcher.
 """
 
 import os
-import glob
-import re
 import copy
 import json
 import logging
 from pathlib import Path
 from random import randint
 
+from pipelineBatcher.utilities import PathTemplate
 from pipelineBatcher.entityProvider import (
     EntityBase,
     TemplateInfo,
     EntityProvider,
     EntityProviderRegistry
 )
-
-
-class PathTemplate:
-    def __init__(self, template: str):
-        self.template = template
-        self.fields = re.findall(r'\{(\w+)\}', template)
-
-    def _check_fields(self, data: dict):
-        missing = [f for f in self.fields if f != 'version' and f not in data]
-        if missing:
-            raise ValueError(f"Missing fields: {missing}")
-
-    def _apply_fields(self, data: dict, version_wildcard: str = None) -> str:
-        path = self.template
-        for field in self.fields:
-            if field == 'version':
-                path = path.replace('{version}', version_wildcard if version_wildcard else data.get('version', '{version}'))
-            else:
-                path = path.replace(f'{{{field}}}', str(data[field]))
-        return path
-
-    def list_files(self, data: dict) -> list[str]:
-        self._check_fields(data)
-        pattern = self._apply_fields(data, version_wildcard='*')
-        return sorted(glob.glob(pattern))
-
-    def next_version_path(self, data: dict) -> str:
-        self._check_fields(data)
-        existing = self.list_files(data)
-
-        if not existing:
-            next_version = 1
-        else:
-            # Extract version numbers from existing files
-            version_pattern = self._apply_fields(data, version_wildcard=r'(\d+)')
-            versions = [
-                int(m.group(1))
-                for f in existing
-                if (m := re.search(version_pattern, f))
-            ]
-            next_version = max(versions) + 1 if versions else 1
-
-        return self._apply_fields({**data, 'version': str(next_version).zfill(3)})
 
 
 def createTemplateFromPath(path: str) -> TemplateInfo:
@@ -214,11 +170,11 @@ class MockEntityProvider(EntityProvider):
         fields = copy.deepcopy(entity.__dict__)
         del fields["id"]
         fields["root"] = self._root
-        files = pathTpl.list_files(fields)
+        files = pathTpl.listFiles(fields)
         logging.info(f"{len(files)} existing version:")
         for file in files:
             logging.info(f"- {file}")
-        scene = pathTpl.next_version_path(fields)
+        scene = pathTpl.getNextPath(fields)
         return scene
 
 EntityProviderRegistry.register(MockEntityProvider())
