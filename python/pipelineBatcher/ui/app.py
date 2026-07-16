@@ -3,11 +3,16 @@ Python Backend of the Pipeline Batcher UI
 """
 
 # ========== Py standard lib imports ==========
+import os
+import sys
+import time
+import subprocess
 import json
 import logging
 import functools
 import traceback
 from enum import Enum
+from pathlib import Path
 
 # ========== External libraries ==========
 from PySide6.QtCore import (
@@ -19,6 +24,9 @@ from PySide6.QtCore import (
     Signal, 
     Property
 )
+
+# ========== Imports from meshroom ==========
+from meshroom import _MESHROOM_ROOT
 
 # ========== Imports from current package ==========
 from pipelineBatcher.ui.utilities import parseNodeParam, getMgParameterInfo
@@ -240,11 +248,43 @@ class PipelineBatcherBackend(QObject):
             logging.warning(f"getParamInfo error: {exc}")
             return json.dumps({"type": "unknown", "default": "", "choices": []})
 
-    # @busy_slot("Set parameters")
     @Slot(str)
     def setParameters(self, params_json: str):
         """Receive the parameter values filled on ParameterPage."""
         self._state.parameters = json.loads(params_json)
+
+    @busy_slot("Opening scene...")
+    @Slot(str)
+    def openMeshroomScene(self, path: str):
+        """Receive the parameter values filled on ParameterPage."""
+        meshroomRoot = Path(_MESHROOM_ROOT)
+        meshroomUI = meshroomRoot / "meshroom" / "ui"
+        if not meshroomUI.exists():
+            logging.error(f"Could not find Meshroom UI module: {meshroomUI}")
+            return
+
+        # Build the environment variables based on the OS
+        env = os.environ.copy()
+        if sys.platform == "win32":
+            env["MESHROOM_INSTALL_DIR"] = str(meshroomRoot)
+
+        # Build the command
+        command = [sys.executable, str(meshroomUI), path]
+        try:
+            levelName = logging.getLevelName(logging.getLogger().level)
+            if levelName:
+                command.extend(["-v", levelName.lower()])
+        except Exception:
+            pass
+
+        logging.info(f"Open Meshroom scene: {command}")
+        try:
+            subprocess.Popen(command, env=env)
+        except Exception as e:
+            logging.error(f"Failed to open Meshroom scene: {e}")
+        else:
+            # Wait for some time while the window open
+            time.sleep(3)
 
     # --- Qt Signals and Properties ---
     pageChanged = Signal(int)

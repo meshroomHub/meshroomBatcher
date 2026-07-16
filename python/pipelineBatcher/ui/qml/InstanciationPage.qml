@@ -39,7 +39,7 @@ Item {
 
     // --- Callback for opening a created scene ---
     function openScene(filePath) {
-        // TODO
+        pipelineBatcherBackend.openMeshroomScene(filePath)
     }
 
     // --- Run on an entity ---
