@@ -22,6 +22,7 @@ except ImportError:
 
 # ========== Meshroom imports ==========
 import meshroom
+from meshroom.common import strtobool
 from meshroom.ui.utils import QFileSystemWatcher
 
 # ========== Imports from current package ==========
@@ -85,10 +86,11 @@ class PipelineBatcherApp:
         self._engine = None
 
         self._watcher = QFileSystemWatcher()
-        for qml_file in QML_DIR.rglob("*.qml"):
-            self._watcher.addPath(str(qml_file))
-        self._watcher.fileChanged.connect(self._on_file_changed)
-        logging.debug("Watching %d QML files under %s", len(self._watcher.files()), QML_DIR)
+        if strtobool(os.getenv("MESHROOM_INSTANT_CODING", "0")):
+            for qml_file in QML_DIR.rglob("*.qml"):
+                self._watcher.addPath(str(qml_file))
+            self._watcher.fileChanged.connect(self._on_file_changed)
+            logging.info("Watching %d QML files under %s", len(self._watcher.files()), QML_DIR)
 
         self._debounce = QTimer(singleShot=True, interval=HOT_RELOAD_DEBOUNCE_MS)
         self._debounce.timeout.connect(self.load)
@@ -145,6 +147,8 @@ class PipelineBatcherApp:
         self._engine.objectCreated.disconnect(on_object_created)
 
     def _on_file_changed(self, filepath):
+        if not strtobool(os.getenv("MESHROOM_INSTANT_CODING", "0")):
+            return
         logging.debug("File changed: %s", filepath)
         self._watcher.addPath(filepath)  # Re-add in case of atomic save (e.g. vim, PyCharm)
         self._debounce.start()
