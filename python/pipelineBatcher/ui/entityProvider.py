@@ -5,12 +5,16 @@ Entities Helper for the Pipeline Batcher UI
 # ========== Py standard lib imports ==========
 import logging
 import inspect
-import json
 from pathlib import Path
 from types import SimpleNamespace
 from collections import defaultdict
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, asdict, field
+
+from pipelineBatcher.ui.utilities import parseNodeParam
+
+from meshroom.core.graph import Graph
+from meshroom.core.node import Position
 
 
 class EntityBase(SimpleNamespace):
@@ -88,17 +92,8 @@ class TemplateInfo:
         if missingKeys:
             logging.warning(f"Missing keys ({', '.join(missingKeys)}) in template:\n{data}")
             return None
+        data = {k:v for k, v in data.items() if k in cls.__dataclass_fields__.keys()}
         return cls(**data)
-
-    @classmethod
-    def fromPath(cls, path: str):
-        with open(path, "r") as f:
-            data = json.load(f)
-        # Remap {root} to the parent folder with the template file
-        if "{root}" in data.get("template"):
-            rootFolder = str(Path(path).parent)
-            data["template"] = data["template"].replace("{root}", rootFolder)
-        return cls.fromDict(data=data)
 
     def toDict(self):
         tplDict = {**asdict(self), "name": self.getName()}
@@ -152,6 +147,19 @@ class EntityProvider(ABC):
         - description: displayed in the Description column (optional)
         """
         raise NotImplementedError()
+
+    @staticmethod
+    def updateEntityOnGraph(template: TemplateInfo, graph: Graph, entity: EntityBase):
+        # Build the dict node_instance -> (attribute, entity_field)
+        entityParams: dict[str, list[tuple[str, str]]] = defaultdict(list)
+        for field, entityParam in template.input_entity_params.items():
+            nodeInstance, paramName = parseNodeParam(entityParam)
+            entityParams[nodeInstance].append((paramName, field))
+        # Apply fields on graph
+        for node in graph.nodes:
+            for paramName, field in entityParams.get(node.name, []):
+                if node.hasAttribute(paramName):
+                    node.attribute(paramName).value = getattr(entity, field, "")
 
     @abstractmethod
     def generateScenePath(self, templateName: str, entity: EntityBase):

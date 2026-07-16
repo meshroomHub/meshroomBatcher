@@ -5,6 +5,10 @@ mockEntityProvider - Mock class to provide fake data for the batcher.
 """
 
 import os
+import glob
+import re
+import copy
+import json
 import logging
 from pathlib import Path
 from random import randint
@@ -15,6 +19,62 @@ from pipelineBatcher.ui.entityProvider import (
     EntityProvider,
     EntityProviderRegistry
 )
+
+
+class PathTemplate:
+    def __init__(self, template: str):
+        self.template = template
+        self.fields = re.findall(r'\{(\w+)\}', template)
+
+    def _check_fields(self, data: dict):
+        missing = [f for f in self.fields if f != 'version' and f not in data]
+        if missing:
+            raise ValueError(f"Missing fields: {missing}")
+
+    def _apply_fields(self, data: dict, version_wildcard: str = None) -> str:
+        path = self.template
+        for field in self.fields:
+            if field == 'version':
+                path = path.replace('{version}', version_wildcard if version_wildcard else data.get('version', '{version}'))
+            else:
+                path = path.replace(f'{{{field}}}', str(data[field]))
+        return path
+
+    def list_files(self, data: dict) -> list[str]:
+        self._check_fields(data)
+        pattern = self._apply_fields(data, version_wildcard='*')
+        return sorted(glob.glob(pattern))
+
+    def next_version_path(self, data: dict) -> str:
+        self._check_fields(data)
+        existing = self.list_files(data)
+
+        if not existing:
+            next_version = 1
+        else:
+            # Extract version numbers from existing files
+            version_pattern = self._apply_fields(data, version_wildcard=r'(\d+)')
+            versions = [
+                int(m.group(1))
+                for f in existing
+                if (m := re.search(version_pattern, f))
+            ]
+            next_version = max(versions) + 1 if versions else 1
+
+        return self._apply_fields({**data, 'version': str(next_version).zfill(3)})
+
+
+def createTemplateFromPath(path: str) -> TemplateInfo:
+    with open(path, "r") as f:
+        data = json.load(f)
+    # Remap {root} to the parent folder with the template file
+    if "{root}" in data.get("template"):
+        rootFolder = str(Path(path).parent)
+        data["template"] = data["template"].replace("{root}", rootFolder)
+    tpl = TemplateInfo.fromDict(data=data)
+    # Additional keys
+    tpl.pathTemplate = data.get("pathTemplate", "/tmp/{version}.mg")
+    return tpl
 
 
 def list_templates() -> list[TemplateInfo]:
@@ -35,7 +95,7 @@ def list_templates() -> list[TemplateInfo]:
         if tplPath.suffix != ".json":
             continue
         try:
-            tpl = TemplateInfo.fromPath(str(tplPath))
+            tpl = createTemplateFromPath(str(tplPath))
         except Exception as exc:
             logging.warning(f"Could not parse template '{tplPath}': {exc}")
         else:
@@ -50,8 +110,9 @@ def list_templates() -> list[TemplateInfo]:
 class MockEntityProvider(EntityProvider):
     name = "MockEntityProvider"
     entityType = "Shot"
-    
+        
     def __init__(self):
+        self._root = os.getenv("MR_BATCHER_FILES_ROOT", f"/tmp/meshroomBatcher/{self.name}")
         self._templates: dict[str, TemplateInfo] = {t.getName(): t for t in list_templates()}
     
     def listAvailableTemplates(self) -> list[TemplateInfo]:
@@ -147,9 +208,17 @@ class MockEntityProvider(EntityProvider):
         return group_entities
 
     def generateScenePath(self, templateName: str, entity: EntityBase):
-        print("generateScenePath")
-        print("  templateName:", templateName)
-        print("  entity      :", entity)
-        return ""
+        template = self._templates.get(templateName)
+        pathTpl = PathTemplate(template.pathTemplate)
+        logging.info(f"path template: {pathTpl}")
+        fields = copy.deepcopy(entity.__dict__)
+        del fields["id"]
+        fields["root"] = self._root
+        files = pathTpl.list_files(fields)
+        logging.info(f"{len(files)} existing version:")
+        for file in files:
+            logging.info(f"- {file}")
+        scene = pathTpl.next_version_path(fields)
+        return scene
 
 EntityProviderRegistry.register(MockEntityProvider())

@@ -1,5 +1,6 @@
 {
     "name": "Create Shot Scene",
+    "pathTemplate": "{root}/shots/{entity_name}/{entity_name}-v{version}.mg",
     "description": "Create a scene from a shot.",
     "template": "{root}/test_template.mg",
     "input_entity_type": "Shot",

@@ -18,14 +18,21 @@ Item {
     property int  _currentEntity: 0
     property int  offset: 0
     property bool _running: false
+    property bool _finished: false
 
     function processAll() {
         if (_running) return
         _currentEntity = 0
         offset = 0
         _running = true
+        _finished = false
         statusText = "Starting..."
         _processNext()
+    }
+
+    // --- Callback for opening a created scene ---
+    function openScene(filePath) {
+        // To be implemented by caller
     }
 
     // --- Run on an entity ---
@@ -33,6 +40,7 @@ Item {
         var total = instanciator.entityCount()
         if (_currentEntity >= total) {
             _running = false
+            _finished = true
             statusText = "Done — " + total + " instance(s) created."
             // pipelineBatcherBackend.next()
             return
@@ -42,7 +50,6 @@ Item {
 
         // Create nodes
         var nodes = instanciator.createInstanceForEntity(_currentEntity, offset)
-        console.log("nodes", nodes)
 
         if (!nodes || nodes.length === 0) {
             statusLabel = "Error on entity " + _currentEntity
@@ -110,8 +117,54 @@ Item {
         ProgressBar {
             Layout.preferredWidth: 300
             Layout.alignment: Qt.AlignHCenter
-            visible: instanciator !== null
+            visible: instanciator !== null && !(_finished && instanciator.mode === "UNIQUE_FILES")
             value: instanciator ? _currentEntity / instanciator.entityCount() : 0
+        }
+
+        ListView {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 200
+            clip: true
+            visible: _finished && instanciator && instanciator.mode === "UNIQUE_FILES"
+            model: instanciator ? instanciator.createdFiles : null
+            spacing: 4
+            delegate: Button {
+                width: ListView.view.width
+                flat: true
+
+                onClicked: root.openScene(filePath)
+
+                contentItem: RowLayout {
+                    spacing: 10
+
+                    MaterialLabel {
+                        text: MaterialIcons.movie
+                        font.pixelSize: 18
+                        color: parent.parent.hovered ? "#43d668" : "#e0e0e0"
+                    }
+
+                    Label {
+                        text: entityName
+                        Layout.preferredWidth: 150
+                        elide: Text.ElideRight
+                        font.bold: true
+                    }
+
+                    Label {
+                        text: filePath
+                        elide: Text.ElideMiddle
+                        Layout.fillWidth: true
+                        opacity: 0.7
+                    }
+                }
+
+                background: Rectangle {
+                    radius: 4
+                    color: parent.hovered ? "#33ffffff" : "transparent"
+                    border.color: "#22ffffff"
+                    border.width: 1
+                }
+            }
         }
 
         Item { Layout.fillHeight: true }

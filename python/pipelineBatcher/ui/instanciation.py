@@ -3,6 +3,7 @@ Helpers for the Pipeline Batcher UI
 """
 
 # ========== Py standard lib imports ==========
+from pathlib import Path
 import logging
 import json
 from typing import Any, TYPE_CHECKING
@@ -11,7 +12,15 @@ from collections import namedtuple
 from enum import Enum
 
 # ========== External libraries ==========
-from PySide6.QtCore import QObject, Slot, Signal, Property
+from PySide6.QtCore import (
+    Qt,
+    QAbstractListModel,
+    QModelIndex,
+    QObject,
+    Slot,
+    Signal,
+    Property
+)
 
 # ========== Meshroom imports ==========
 from meshroom.core.node import Position
@@ -23,7 +32,7 @@ if TYPE_CHECKING:
 
 # ========== Imports from current package ==========
 from pipelineBatcher.ui.utilities import parseNodeParam
-from pipelineBatcher.ui.entityProvider import EntityBase, TemplateInfo, EntityProvider, EntityProviderRegistry, EntityCache
+from pipelineBatcher.ui.entityProvider import EntityBase, TemplateInfo, EntityProviderRegistry, EntityCache
 
 
 OverrideParameter = namedtuple("OverrideParameter", ("node_instance", "parameter_name", "value"))
@@ -56,6 +65,36 @@ class TemplateCreationState:
         )
 
 
+class CreatedFilesModel(QAbstractListModel):
+    NameRole = Qt.UserRole + 1
+    PathRole = Qt.UserRole + 2
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._items: list[tuple[str, str]] = []
+
+    def add(self, name: str, path: str):
+        self.beginInsertRows(QModelIndex(), len(self._items), len(self._items))
+        self._items.append((name, path))
+        self.endInsertRows()
+
+    def rowCount(self, parent=QModelIndex()):
+        return len(self._items)
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        name, path = self._items[index.row()]
+        if role == self.NameRole:
+            return name
+        if role == self.PathRole:
+            return path
+        return None
+
+    def roleNames(self):
+        return {self.NameRole: b"entityName", self.PathRole: b"filePath"}
+
+
 class TemplateInstanciator(QObject):
     """ Creates Meshroom nodes for one entity at a time. """
 
@@ -70,10 +109,11 @@ class TemplateInstanciator(QObject):
         """
         super().__init__(parent)
 
-        templateIndex = state.selected_template.index
-        self._templateName = state.selected_template.getName()
-        templatePath = state.selected_template.template
-        entityParams = state.selected_template.input_entity_params
+        self._selectedTemplate: TemplateInfo = state.selected_template
+        templateIndex = self._selectedTemplate.index
+        self._templateName = self._selectedTemplate.getName()
+        templatePath = self._selectedTemplate.template
+        entityParams = self._selectedTemplate.input_entity_params
         entities     = [EntityCache.get(templateIndex, eId) for eId in state.selected_entities]
 
         self._app: "MeshroomApp" = app
@@ -106,7 +146,7 @@ class TemplateInstanciator(QObject):
         self.y0 = min(p[1] for p in all_pos) if all_pos else 0
         
         # Store unique files for the final page
-        self._createdFiles: dict[str, str] = {}  # {entity name: path}
+        self._createdFiles = CreatedFilesModel(parent=self)
     
     def getMode(self):
         return self._instancingMode.name
@@ -164,19 +204,24 @@ class TemplateInstanciator(QObject):
 
         # Apply the graph
         if self._instancingMode == InstancingMode.LIVE_SCENE:
+            # Update the entity on the graph
+            self._provider.updateEntityOnGraph(self._selectedTemplate, g, entity)
+            # Import on current graph
             return self._uigraph._graph.importGraphContent(g)
         else:
             self._createInstanceOnUniqueScene(g, entity)
             return list(g.nodes)
 
-    def _createInstanceOnUniqueScene(self, graph, entity):
-        print("NOT IMPLEMENTED: _createInstanceOnUniqueScene")
-        print("  graph :", graph)
-        print("  entity:", entity)
-        print("  nodes: ", list(graph.nodes))
+    def _createInstanceOnUniqueScene(self, graph: Graph, entity: EntityBase):
+        logging.info(f"(_createInstanceOnUniqueScene) entity: {entity}")
+        # Update the entity on the graph
+        self._provider.updateEntityOnGraph(self._selectedTemplate, graph, entity)
         filePath = self._provider.generateScenePath(self._templateName, entity)
-        # update _createdFiles
-        pass
+        # Generate scene
+        Path(filePath).parent.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Save scene to {filePath}")
+        graph.save(filePath)
+        self._createdFiles.add(entity.entity_name, filePath)
 
     @Slot(QObject, str)
     def setBackdropName(self, backdropNode, label: str):
@@ -193,3 +238,4 @@ class TemplateInstanciator(QObject):
     done = Signal()
     errorOccurred = Signal(str)
     mode = Property(str, getMode, constant=True)
+    createdFiles = Property(QObject, lambda self: self._createdFiles, constant=True)
