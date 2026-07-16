@@ -4,6 +4,7 @@ Helpers for the Pipeline Batcher UI
 
 # ========== Py standard lib imports ==========
 import json
+from pathlib import Path
 from collections import namedtuple
 
 # ========== Meshroom imports ==========
@@ -11,6 +12,17 @@ from meshroom.core import pluginManager
 
 
 OverrideParameter = namedtuple("OverrideParameter", ("node_instance", "parameter_name", "value"))
+
+
+def import_provider(modulePath: str):
+    import sys
+    import importlib.util
+    moduleName = "mockEntityProvider"
+    moduleName = Path(modulePath).stem
+    spec = importlib.util.spec_from_file_location(moduleName, str(modulePath))
+    foo = importlib.util.module_from_spec(spec)
+    sys.modules[moduleName] = foo
+    spec.loader.exec_module(foo)
 
 
 MR_TYPE_MAP = {

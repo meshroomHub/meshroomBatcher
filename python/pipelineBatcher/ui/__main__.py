@@ -26,6 +26,7 @@ from meshroom.common import strtobool
 from meshroom.ui.utils import QFileSystemWatcher
 
 # ========== Imports from current package ==========
+from pipelineBatcher.ui.utilities import import_provider
 from pipelineBatcher.ui.app import PipelineBatcherBackend
 
 
@@ -69,13 +70,8 @@ def parse_args():
 
 
 def add_mock_provider():
-    import importlib.util
-    moduleName = "mockEntityProvider"
-    path = Path(__file__).parent.parent.parent / "mock" / f"{moduleName}.py"
-    spec = importlib.util.spec_from_file_location(moduleName, str(path))
-    foo = importlib.util.module_from_spec(spec)
-    sys.modules[moduleName] = foo
-    spec.loader.exec_module(foo)
+    path = Path(__file__).parent.parent.parent / "mock" / "mockEntityProvider.py"
+    import_provider(str(path))
 
 
 class PipelineBatcherApp:

@@ -4,7 +4,6 @@ Add a menu for prod tools.
 
 # ========== Py standard lib imports ==========
 import os
-import sys
 import logging
 from pathlib import Path
 
@@ -17,6 +16,7 @@ from PySide6.QtCore import QUrl
 from meshroom.ui.menu import MeshroomMenuManager, Menu, MenuCallback
 
 # ========== Imports from current package ==========
+from pipelineBatcher.ui.utilities import import_provider
 from pipelineBatcher.ui import app as BatcherUI
 
 
@@ -24,13 +24,8 @@ QML_DIR = Path(__file__).parent.parent / "ui" / "qml"
 
 
 if os.getenv("REGISTER_MOCK_ENTITYPROVIDER") == "1":
-    import importlib.util
-    moduleName = "mockEntityProvider"
-    path = Path(__file__).parent.parent.parent / "mock" / f"{moduleName}.py"
-    spec = importlib.util.spec_from_file_location(moduleName, str(path))
-    foo = importlib.util.module_from_spec(spec)
-    sys.modules[moduleName] = foo
-    spec.loader.exec_module(foo)
+    path = Path(__file__).parent.parent.parent / "mock" / "mockEntityProvider.py"
+    import_provider(str(path))
 
 
 # 
