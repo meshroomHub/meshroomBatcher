@@ -35,13 +35,12 @@ def createTemplateFromPath(path: str) -> TemplateInfo:
 
 def list_templates() -> list[TemplateInfo]:
     """
-    Scan PIPELINE_RESOURCES folder for JSON files and
+    Search for JSON files in the mock folder and
     return a list with the detected templates.
     """
     results: list[TemplateInfo] = []
     # Get files
-    resources = os.getenv("PIPELINE_RESOURCES")
-    templatesFolder = Path(resources) / "batchPipelines"
+    templatesFolder = Path(__file__).parent
     if not os.path.isdir(templatesFolder):
         logging.warning(f"Templates directory does not exist: {templatesFolder}")
         return results
