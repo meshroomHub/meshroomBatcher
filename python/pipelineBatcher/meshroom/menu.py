@@ -15,7 +15,6 @@ from PySide6.QtCore import QUrl
 
 # ========== Meshroom imports ==========
 from meshroom.ui.menu import MeshroomMenuManager, Menu, MenuCallback
-from meshroom.ui.extensions import QmlExtensions
 
 # ========== Imports from current package ==========
 from pipelineBatcher.ui import app as BatcherUI
@@ -32,18 +31,6 @@ if os.getenv("REGISTER_MOCK_ENTITYPROVIDER") == "1":
     foo = importlib.util.module_from_spec(spec)
     sys.modules[moduleName] = foo
     spec.loader.exec_module(foo)
-
-
-# 
-# Register QML folder
-# 
-
-QmlExtensions.registerQmlModule(
-    folder=QML_DIR,
-    name="PipelineBatcher",
-    major=1,
-    minor=0,
-)
 
 
 # 
@@ -73,6 +60,7 @@ class OpenPipelineBatcher(MenuCallback):
             engine.rootContext().setContextProperty(
                 "pipelineBatcherBackend", backend
             )
+            engine.addImportPath(QML_DIR)
             logging.info("Backend registered as context property.")
 
     @classmethod

@@ -13,7 +13,7 @@ from pathlib import Path
 # ========== External libraries ==========
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QUrl, QTimer
-from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
+from PySide6.QtQml import QQmlApplicationEngine
 
 try:
     from PySide6 import shiboken6
@@ -22,9 +22,6 @@ except ImportError:
 
 # ========== Meshroom imports ==========
 import meshroom
-from meshroom.ui.extensions import QmlExtensions
-from meshroom.ui.components.clipboard import ClipboardHelper
-from meshroom.ui.components.filepath import FilepathHelper
 from meshroom.ui.utils import QFileSystemWatcher
 
 # ========== Imports from current package ==========
@@ -102,19 +99,10 @@ class PipelineBatcherApp:
         engine = QQmlApplicationEngine()
         engine.setOutputWarningsToStandardError(True)
 
-        # Patch addFilesFromDirectory to avoid crash on Meshroom side
-        engine.addFilesFromDirectory = lambda path, recursive=False: None
-
-        # Register meshroom QML types defined in Python
-        qmlRegisterType(ClipboardHelper, "Meshroom.Helpers", 1, 0, "ClipboardHelper")
-        qmlRegisterType(FilepathHelper, "Meshroom.Helpers", 1, 0, "FilepathHelper")
-
         # Register QML import paths
         if MESHROOM_QML_DIR.is_dir():
             engine.addImportPath(str(MESHROOM_QML_DIR))
-        QmlExtensions.registerQmlModule(folder=QML_DIR, name="PipelineBatcher", major=1, minor=0)
-        QmlExtensions.registerSources(engine)
-
+        engine.addImportPath(QML_DIR)
         engine.rootContext().setContextProperty("pipelineBatcherBackend", self._backend)
         return engine
 
