@@ -1,0 +1,106 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+env:
+  PYTHONPATH: "${{ github.workspace }}/python"
+  MESHROOM_BATCHER_RESOURCES: "${{ github.workspace }}/resources"
+  MESHROOM_BATCHER_PROVIDERS: "${{ github.workspace }}/python/providers"
+  MESHROOM_PLUGINS_PATH: "${{ github.workspace }}/python/pipelineBatcher"
+
+jobs:
+  # Stage BUILD - Build package
+  build-package:
+    name: Build Package
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov ruff black pylint
+
+      - name: Cache installed dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+  # # Stage TEST - Launch python tests : disabled for now (need meshroom dependency)
+  # test-pytest:
+  #   name: Test (pytest)
+  #   runs-on: self-hosted
+  #   needs: build-package
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.11"
+
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install pytest pytest-cov
+
+  #     - name: Run tests
+  #       env:
+  #         PYTHONPATH: "${{ github.workspace }}/python"
+  #       run: |
+  #         python -m pytest \
+  #           --cov=pipelineBatcher \
+  #           --cov-config=${{ github.workspace }}/.coveragerc \
+  #           --cov-report=xml:coverage.xml \
+  #           --cov-report=html:htmlcov \
+  #           --cov-report=term \
+  #           -v \
+  #           ${{ github.workspace }}/tests/
+
+  #     - name: Upload coverage report
+  #       uses: actions/upload-artifact@v4
+  #       if: always()
+  #       with:
+  #         name: coverage-report
+  #         path: |
+  #           coverage.xml
+  #           htmlcov/
+  #         retention-days: 7
+
+  # Stage LINT - Check code quality
+  lint-ruff:
+    name: Lint (ruff)
+    runs-on: self-hosted
+    needs: build-package
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ruff
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+
+      - name: Run ruff
+        run: |
+          ruff check ${{ github.workspace }}/python/meshroomBatcher \
+            --config=${{ github.workspace }}/pyproject.toml
