@@ -1,4 +1,3 @@
-// EntityPage.qml
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
@@ -144,7 +143,7 @@ Item {
 
             Rectangle {
                 height: 26
-                width: entityTypeBadgeLabel.implicitWidth + 40
+                implicitWidth: entityTypeBadgeLabel.implicitWidth + 20
                 radius: 13
                 color: PBColors.entityColor(root.entityType)
 
