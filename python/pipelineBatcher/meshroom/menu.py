@@ -13,7 +13,13 @@ from PySide6.QtQml import QQmlComponent
 from PySide6.QtCore import QUrl
 
 # ========== Meshroom imports ==========
-from meshroom.ui.menu import MeshroomMenuManager, Menu, MenuCallback
+try:
+    from meshroom.ui.menu import MeshroomMenuManager, Menu, MenuCallback
+except Exception as e:
+    logging.error("Failed to get import Meshroom Menu API. Disabling MeshroomBatcher menu.")
+    from unittest.mock import MagicMock
+    Menu = MenuCallback = MeshroomMenuManager = MagicMock()
+
 
 # ========== Imports from current package ==========
 from pipelineBatcher.utilities import import_provider
