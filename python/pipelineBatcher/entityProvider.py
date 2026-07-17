@@ -179,16 +179,15 @@ class EntityProviderRegistry(object):
         logging.info(f"Registering provider {provider}")
         cls._registry[name] = provider
         # Register all templates from this provider
-        for provider in cls.listEntityProviders():
-            providerTemplates = provider.listAvailableTemplates()
-            for tpl in providerTemplates:
-                if not isinstance(tpl, TemplateInfo):
-                    logging.warning(f"Cannot register template {tpl}: not a TemplateInfo.")
-                    continue
-                tplIndex = len(cls._templateProvider)
-                tpl.index = tplIndex
-                cls._templates[tplIndex] = tpl
-                cls._templateProvider[tplIndex] = provider.getName()
+        providerTemplates = provider.listAvailableTemplates()
+        for tpl in providerTemplates:
+            if not isinstance(tpl, TemplateInfo):
+                logging.warning(f"Cannot register template {tpl}: not a TemplateInfo.")
+                continue
+            tplIndex = len(cls._templateProvider)
+            tpl.index = tplIndex
+            cls._templates[tplIndex] = tpl
+            cls._templateProvider[tplIndex] = provider.getName()
 
     @classmethod
     def getEntityProvider(cls, name) -> EntityProvider:
