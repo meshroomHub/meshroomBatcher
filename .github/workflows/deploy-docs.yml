@@ -1,0 +1,41 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'  # Doc generation triggered when docs folder changes
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install mkdocs
+          python3 -m pip install mkdocs-material
+          python3 -m pip install mkdocs-glightbox
+          python3 -m pip install mkdocs-github-admonitions-plugin
+
+      - name: Build & Deploy docs
+        run: |
+          cd docs
+          python3 -m mkdocs gh-deploy --config-file ./mkdocs.yml --force

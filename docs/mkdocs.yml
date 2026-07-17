@@ -1,0 +1,50 @@
+site_name: Meshroom Batcher
+site_url: https://meshroomhub.github.io/meshroomBatcher/
+docs_dir: './source'
+
+# Pages
+use_directory_urls: false
+nav:
+  - Projets:
+    - Home: 'index.md'
+    - Entity Providers: 'entityProviders.md'
+
+
+# Setup
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: pink
+    accent: deep purple
+  logo: ./images/logo.svg
+  features:
+    - navigation.footer
+
+extra:
+  social:
+    - icon: fontawesome/brands/github 
+      link: https://github.com/meshroomHub/meshroomBatcher
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: "#"
+      separator: "_"
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+plugins:
+  - glightbox
+  - gh-admonitions
+  - search
