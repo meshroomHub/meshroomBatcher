@@ -5,11 +5,14 @@ mockEntityProvider - Mock class to provide fake data for the batcher.
 """
 
 import os
+import copy
+import json
 import logging
 from pathlib import Path
 from random import randint
 
-from pipelineBatcher.ui.entityProvider import (
+from pipelineBatcher.utilities import PathTemplate
+from pipelineBatcher.entityProvider import (
     EntityBase,
     TemplateInfo,
     EntityProvider,
@@ -17,15 +20,27 @@ from pipelineBatcher.ui.entityProvider import (
 )
 
 
+def createTemplateFromPath(path: str) -> TemplateInfo:
+    with open(path, "r") as f:
+        data = json.load(f)
+    # Remap {root} to the parent folder with the template file
+    if "{root}" in data.get("template"):
+        rootFolder = str(Path(path).parent)
+        data["template"] = data["template"].replace("{root}", rootFolder)
+    tpl = TemplateInfo.fromDict(data=data)
+    # Additional keys
+    tpl.pathTemplate = data.get("pathTemplate", "/tmp/{version}.mg")
+    return tpl
+
+
 def list_templates() -> list[TemplateInfo]:
     """
-    Scan PIPELINE_RESOURCES folder for JSON files and
+    Search for JSON files in the mock folder and
     return a list with the detected templates.
     """
     results: list[TemplateInfo] = []
     # Get files
-    resources = os.getenv("PIPELINE_RESOURCES")
-    templatesFolder = Path(resources) / "batchPipelines"
+    templatesFolder = Path(__file__).parent
     if not os.path.isdir(templatesFolder):
         logging.warning(f"Templates directory does not exist: {templatesFolder}")
         return results
@@ -35,7 +50,7 @@ def list_templates() -> list[TemplateInfo]:
         if tplPath.suffix != ".json":
             continue
         try:
-            tpl = TemplateInfo.fromPath(str(tplPath))
+            tpl = createTemplateFromPath(str(tplPath))
         except Exception as exc:
             logging.warning(f"Could not parse template '{tplPath}': {exc}")
         else:
@@ -50,8 +65,9 @@ def list_templates() -> list[TemplateInfo]:
 class MockEntityProvider(EntityProvider):
     name = "MockEntityProvider"
     entityType = "Shot"
-    
+        
     def __init__(self):
+        self._root = os.getenv("MR_BATCHER_OUTPUT_ROOT", f"/tmp/meshroomBatcher/{self.name}")
         self._templates: dict[str, TemplateInfo] = {t.getName(): t for t in list_templates()}
     
     def listAvailableTemplates(self) -> list[TemplateInfo]:
@@ -146,5 +162,18 @@ class MockEntityProvider(EntityProvider):
             ))
         return group_entities
 
+    def generateScenePath(self, templateName: str, entity: EntityBase):
+        template = self._templates.get(templateName)
+        pathTpl = PathTemplate(template.pathTemplate)
+        logging.info(f"path template: {pathTpl}")
+        fields = copy.deepcopy(entity.__dict__)
+        del fields["id"]
+        fields["root"] = self._root
+        files = pathTpl.listFiles(fields)
+        logging.info(f"{len(files)} existing version:")
+        for file in files:
+            logging.info(f"- {file}")
+        scene = pathTpl.getNextPath(fields)
+        return scene
 
 EntityProviderRegistry.register(MockEntityProvider())

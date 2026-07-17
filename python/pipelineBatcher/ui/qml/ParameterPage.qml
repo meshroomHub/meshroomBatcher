@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import Qt.labs.platform 1.0 as Platform
 import MaterialIcons 2.2
+import PBComponents 1.0
 
 Item {
     id: root
@@ -87,7 +88,7 @@ Item {
             visible: paramInfos.length > 0
             text: paramInfos.length + " parameter(s) to configure"
             font.pixelSize: 12
-            color: "#aaa"
+            color: PBColors.textColor
             Layout.fillWidth: true
         }
 
@@ -102,7 +103,7 @@ Item {
                 visible: paramInfos.length === 0
                 text: "No parameters - ready to start."
                 font.pixelSize: 15
-                color: "#aaa"
+                color: PBColors.textColor
             }
 
             ScrollView {
@@ -110,8 +111,10 @@ Item {
                 visible: paramInfos.length > 0
                 clip: true
 
+                contentWidth: availableWidth
+
                 Column {
-                    width:   parent.width
+                    width: parent.width
                     spacing: 16
 
                     Repeater {
@@ -138,7 +141,7 @@ Item {
                     Material.background: hovered ? Material.Pink : Material.Red
                     highlighted: hovered
                     onClicked: pipelineBatcherBackend.cancel()
-                    textColor: "#000000"
+                    textColor: "black"
                 }
 
                 NavigationButton {
@@ -156,8 +159,8 @@ Item {
                     text: "Start"
                     navIcon: MaterialIcons.play_arrow
                     navIconPosition: "left"
-                    Material.background: hovered ? "#43d668" : "#2a67ad"
-                    Material.foreground: hovered ? "#424242" : "#e0e0e0"
+                    Material.background: hovered ? PBColors.startButton     : Material.accent
+                    Material.foreground: hovered ? PBColors.startButtonText : Material.textColor
                     scale: hovered ? 1.05 : 1.0
                     Behavior on scale {
                         NumberAnimation { duration: 100 }

@@ -13,7 +13,7 @@ from pathlib import Path
 # ========== External libraries ==========
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QUrl, QTimer
-from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
+from PySide6.QtQml import QQmlApplicationEngine
 
 try:
     from PySide6 import shiboken6
@@ -22,12 +22,11 @@ except ImportError:
 
 # ========== Meshroom imports ==========
 import meshroom
-from meshroom.ui.extensions import QmlExtensions
-from meshroom.ui.components.clipboard import ClipboardHelper
-from meshroom.ui.components.filepath import FilepathHelper
+from meshroom.common import strtobool
 from meshroom.ui.utils import QFileSystemWatcher
 
 # ========== Imports from current package ==========
+from pipelineBatcher.utilities import import_provider
 from pipelineBatcher.ui.app import PipelineBatcherBackend
 
 
@@ -71,13 +70,8 @@ def parse_args():
 
 
 def add_mock_provider():
-    import importlib.util
-    moduleName = "mockEntityProvider"
-    path = Path(__file__).parent.parent.parent / "mock" / f"{moduleName}.py"
-    spec = importlib.util.spec_from_file_location(moduleName, str(path))
-    foo = importlib.util.module_from_spec(spec)
-    sys.modules[moduleName] = foo
-    spec.loader.exec_module(foo)
+    path = Path(__file__).parent.parent.parent.parent / "mock" / "mockEntityProvider.py"
+    import_provider(str(path))
 
 
 class PipelineBatcherApp:
@@ -88,10 +82,11 @@ class PipelineBatcherApp:
         self._engine = None
 
         self._watcher = QFileSystemWatcher()
-        for qml_file in QML_DIR.rglob("*.qml"):
-            self._watcher.addPath(str(qml_file))
-        self._watcher.fileChanged.connect(self._on_file_changed)
-        logging.debug("Watching %d QML files under %s", len(self._watcher.files()), QML_DIR)
+        if strtobool(os.getenv("MESHROOM_INSTANT_CODING", "0")):
+            for qml_file in QML_DIR.rglob("*.qml"):
+                self._watcher.addPath(str(qml_file))
+            self._watcher.fileChanged.connect(self._on_file_changed)
+            logging.info("Watching %d QML files under %s", len(self._watcher.files()), QML_DIR)
 
         self._debounce = QTimer(singleShot=True, interval=HOT_RELOAD_DEBOUNCE_MS)
         self._debounce.timeout.connect(self.load)
@@ -102,19 +97,10 @@ class PipelineBatcherApp:
         engine = QQmlApplicationEngine()
         engine.setOutputWarningsToStandardError(True)
 
-        # Patch addFilesFromDirectory to avoid crash on Meshroom side
-        engine.addFilesFromDirectory = lambda path, recursive=False: None
-
-        # Register meshroom QML types defined in Python
-        qmlRegisterType(ClipboardHelper, "Meshroom.Helpers", 1, 0, "ClipboardHelper")
-        qmlRegisterType(FilepathHelper, "Meshroom.Helpers", 1, 0, "FilepathHelper")
-
         # Register QML import paths
         if MESHROOM_QML_DIR.is_dir():
             engine.addImportPath(str(MESHROOM_QML_DIR))
-        QmlExtensions.registerQmlModule(folder=QML_DIR, name="PipelineBatcher", major=1, minor=0)
-        QmlExtensions.registerSources(engine)
-
+        engine.addImportPath(QML_DIR)
         engine.rootContext().setContextProperty("pipelineBatcherBackend", self._backend)
         return engine
 
@@ -157,6 +143,8 @@ class PipelineBatcherApp:
         self._engine.objectCreated.disconnect(on_object_created)
 
     def _on_file_changed(self, filepath):
+        if not strtobool(os.getenv("MESHROOM_INSTANT_CODING", "0")):
+            return
         logging.debug("File changed: %s", filepath)
         self._watcher.addPath(filepath)  # Re-add in case of atomic save (e.g. vim, PyCharm)
         self._debounce.start()

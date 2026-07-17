@@ -1,5 +1,6 @@
 {
     "name": "Create Sequence Scene",
+    "pathTemplate": "{root}/sequences/{entity_name}/{entity_name}-v{version}.mg",
     "description": "Create a scene from a Sequence.",
     "template": "{root}/test_template.mg",
     "input_entity_type": "Sequence",

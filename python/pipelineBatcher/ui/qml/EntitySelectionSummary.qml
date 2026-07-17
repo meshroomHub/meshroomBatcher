@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import MaterialIcons 2.2
+import PBComponents 1.0
 
 Rectangle {
     id: root
@@ -15,9 +16,9 @@ Rectangle {
     readonly property var idList: Object.keys(checkedIds)
     readonly property int count: idList.length
 
-    height: 48
+    height: 45
     radius: 8
-    color: "#1a2a3a"
+    color: PBColors.interpolate(Material.backgroundColor, Material.accent, 0.2)
     border.color: Material.accent
     border.width: 1
     clip: true
@@ -49,7 +50,17 @@ Rectangle {
             ScrollBar.vertical.policy: ScrollBar.AlwaysOff
             ScrollBar.horizontal.policy: ScrollBar.AsNeeded
 
+            ScrollBar.horizontal.height: 10
+            ScrollBar.horizontal.contentItem: Rectangle {
+                radius: 10
+                color: parent.pressed ? Material.accent : parent.hovered
+                    ? Qt.alpha(Material.accent, 0.7)
+                    : Qt.alpha(Material.accent, 0.3)
+                Behavior on color { ColorAnimation { duration: 100 } }
+            }
+
             Row {
+                id: scrollRow
                 spacing: 6
                 anchors.verticalCenter: parent.verticalCenter
                 padding: 4
@@ -58,15 +69,16 @@ Rectangle {
                     model: root.idList
 
                     delegate: Rectangle {
-                        height: 26
-                        width: selectedItemLabel.implicitWidth + 28
+                        height: root.height - parent.padding - 10
+                        width: rowLayout.implicitWidth + rowLayout.anchors.leftMargin + rowLayout.anchors.rightMargin
                         radius: 13
-                        color: "#1e3a5f"
-                        border.color: "#2a5080"
+                        color: PBColors.secondary
+                        border.color: Qt.darker(PBColors.secondary, 1.4)
                         border.width: 1
                         anchors.verticalCenter: parent.verticalCenter
 
                         RowLayout {
+                            id: rowLayout
                             anchors {
                                 fill: parent
                                 leftMargin: 8
@@ -78,12 +90,11 @@ Rectangle {
                                 id: selectedItemLabel
                                 text: modelData
                                 font.pixelSize: 11
-                                color: "#cce"
-                                elide: Text.ElideRight
-                                Layout.maximumWidth: 120
+                                color: PBColors.textOnSecondary
+                                elide: Text.ElideLeft
+                                Layout.maximumWidth: 150
                             }
 
-                            // Remove button
                             Rectangle {
                                 width: 16; height: 16
                                 radius: 8

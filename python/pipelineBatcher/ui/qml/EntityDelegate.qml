@@ -9,17 +9,12 @@ Rectangle {
 
     property var entityData  // {id, name, status, description, **kwargs}
     property bool checked: false
-    property color textColor
 
     signal toggled(string id)
 
     height: 40
-    color: checked ? "#1a3a6e" : (hoverArea.containsMouse ? "#262626" : "transparent")
+    color: checked ? PBColors.selectedBackground : (hoverArea.containsMouse ? PBColors.rowHoverBackground : "transparent")
     radius: 4
-
-    Behavior on color {
-        ColorAnimation { duration: 150 }
-    }
 
     // Check from the whole line
     MouseArea {
@@ -34,7 +29,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         width: parent.width
         height: 1
-        color: "#2a2a2a"
+        color: PBColors.separator
     }
 
     RowLayout {
@@ -53,25 +48,30 @@ Rectangle {
         }
 
         Label {
-            Layout.preferredWidth: 200
-            Layout.fillWidth: true
+            id: entityNameLabel
+            // Layout.preferredWidth: 200
             Layout.fillHeight: true
             verticalAlignment: Text.AlignVCenter
             text: entityData.name || entityData.id
             font.pixelSize: 13
             font.weight: root.checked ? Font.Medium : Font.Normal
-            color: root.checked ? "white" : Qt.lighter(root.textColor, 1.5)
-            elide: Text.ElideRight
+            color: Qt.lighter(PBColors.textColor, root.checked ? 0 : 1.4)
             leftPadding: 4
+            rightPadding: 15
         }
+
+        Item { Layout.fillWidth: true }
 
         // Status badge
         Rectangle {
-            Layout.preferredWidth: 90
+            id: statusBadgeRectangle
+            Layout.preferredWidth: statusBadge.visible ? statusLabel.implicitWidth + 10 : 0
             Layout.fillHeight: true
+            Layout.rightMargin: statusBadge.visible ? 15 : 0
             color: "transparent"
 
             Rectangle {
+                id: statusBadge
                 anchors.verticalCenter: parent.verticalCenter
                 visible: entityData.status !== undefined && entityData.status !== ""
                 height: 20
@@ -86,19 +86,18 @@ Rectangle {
                     text: entityData.status || ""
                     font.pixelSize: 10
                     font.weight: Font.Medium
-                    color: "white"
+                    color: PBColors.primaryText
                 }
             }
         }
 
         // Description
         Label {
-            Layout.fillWidth: true
-            Layout.fillHeight: true               // Stretches bounding box to 40px
-            verticalAlignment: Text.AlignVCenter  // Centers text within the bounding box
+            Layout.fillHeight: true
+            verticalAlignment: Text.AlignVCenter
             text: entityData ? (entityData.description || "") : ""
             font.pixelSize: 12
-            color: root.textColor
+            color: PBColors.tertiaryText
             elide: Text.ElideRight
         }
     }

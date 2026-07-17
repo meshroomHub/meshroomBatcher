@@ -3,6 +3,7 @@
 Expected JSON schema per file:
 ```json
 {
+    "pathTemplate":       "{root}/shots/{entity_name}/{entity_name}-v{version}.mg",
     "name":               "My Pipeline",         // optional, defaults to filename
     "description":        "...",                 // optional
     "template":           "path/to/file.mg",     // path to the .mg file

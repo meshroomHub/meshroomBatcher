@@ -1,4 +1,3 @@
-// EntityPage.qml
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
@@ -34,9 +33,6 @@ Item {
         if (visible && entityType !== "")
             _loadTree()
     }
-
-    // Theme
-    property bool darkTheme: Material.theme == Material.Dark
 
     // --- Data loading ---
 
@@ -140,8 +136,6 @@ Item {
         anchors.margins: 20
         spacing: 12
 
-        property color textColor: darkTheme ? "#888" : "#222"
-
         // Top bar
         RowLayout {
             Layout.fillWidth: true
@@ -149,7 +143,7 @@ Item {
 
             Rectangle {
                 height: 26
-                width: entityTypeBadgeLabel.implicitWidth + 40
+                implicitWidth: entityTypeBadgeLabel.implicitWidth + 20
                 radius: 13
                 color: PBColors.entityColor(root.entityType)
 
@@ -159,7 +153,7 @@ Item {
                     text: root.entityType || "—"
                     font.pixelSize: 12
                     font.weight: Font.Medium
-                    color: "white"
+                    color: PBColors.primaryText
                 }
             }
 
@@ -168,7 +162,7 @@ Item {
                         ? root.checkedCount + " selected"
                         : entityList.length + " entities in group"
                 font.pixelSize: 13
-                color: root.checkedCount > 0 ? Material.accent : (root.darkTheme ? "#aaa" : "#666")
+                color: root.checkedCount > 0 ? Material.accent : PBColors.tertiaryText
             }
 
             Item { Layout.fillWidth: true }
@@ -201,8 +195,8 @@ Item {
                 Layout.minimumWidth: 140
                 Layout.fillHeight: true
                 radius: 8
-                color: root.darkTheme ? "#1e1e1e" : "#eee"
-                border.color: "#333"
+                color: PBColors.panelBackground
+                border.color: PBColors.panelBorder
                 border.width: 1
                 clip: true
 
@@ -216,7 +210,7 @@ Item {
                         text: "Browse"
                         font.pixelSize: 11
                         font.weight: Font.Medium
-                        color: entityPageLayout.textColor
+                        color: PBColors.tertiaryText
                         leftPadding: 12
                         topPadding: 10
                         bottomPadding: 8
@@ -225,7 +219,7 @@ Item {
                     Rectangle {
                         Layout.fillWidth: true
                         height: 1
-                        color: "#333"
+                        color: PBColors.panelBorder
                     }
 
                     ScrollView {
@@ -244,7 +238,6 @@ Item {
                                 activeGroupId: root.activeGroupId
                                 depth: 0
                                 onGroupSelected: (id) => root._selectGroup(id)
-                                textColor: entityPageLayout.textColor
                             }
                         }
                     }
@@ -256,8 +249,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: 8
-                color: root.darkTheme ? "#1e1e1e" : "#eee"
-                border.color: "#333"
+                color: PBColors.panelBackground
+                border.color: PBColors.panelBorder
                 border.width: 1
                 clip: true
 
@@ -270,8 +263,7 @@ Item {
                     Rectangle {
                         Layout.fillWidth: true
                         height: 34
-                        // color: "#242424"
-                        color: root.darkTheme ? "#242424" : "#ccc"
+                        color: PBColors.headerBackground
                         radius: 7
 
                         Rectangle {
@@ -292,24 +284,10 @@ Item {
                             Label {
                                 Layout.preferredWidth: 200
                                 Layout.fillWidth: true
-                                text: "Name"
+                                text: "Entities"
                                 font.pixelSize: 11
                                 font.weight: Font.Medium
-                                color: entityPageLayout.textColor
-                            }
-                            Label {
-                                Layout.preferredWidth: 90
-                                text: "Status"
-                                font.pixelSize: 11
-                                font.weight: Font.Medium
-                                color: entityPageLayout.textColor
-                            }
-                            Label {
-                                Layout.fillWidth: true
-                                text: "Description"
-                                font.pixelSize: 11
-                                font.weight: Font.Medium
-                                color: entityPageLayout.textColor
+                                color: PBColors.tertiaryText
                             }
                         }
                     }
@@ -317,7 +295,7 @@ Item {
                     Rectangle {
                         Layout.fillWidth: true
                         height: 1
-                        color: "#333"
+                        color: PBColors.panelBorder
                     }
 
                     // Empty / Placeholder state
@@ -336,7 +314,7 @@ Item {
                                     ? "Select a group on the left."
                                     : "No entities found in this group."
                                 font.pixelSize: 13
-                                color: "#666"
+                                color: PBColors.placeholderText
                             }
                         }
                     }
@@ -358,7 +336,6 @@ Item {
                                 entityData: modelData
                                 checked: !!root.checkedIds[modelData.id]
                                 onToggled: (id) => root._toggleEntity(id)
-                                textColor: entityPageLayout.textColor
                             }
                         }
                     }
@@ -388,7 +365,7 @@ Item {
                 Material.background: hovered ? Material.Pink : Material.Red
                 highlighted: hovered
                 onClicked: pipelineBatcherBackend.cancel()
-                textColor: "#000000"
+                textColor: "black"
             }
             
             NavigationButton {
@@ -406,14 +383,13 @@ Item {
                 visible: root.checkedCount === 0
                 text: "Select at least one entity to continue"
                 font.pixelSize: 12
-                color: "#666"
+                color: PBColors.placeholderText
             }
 
             NavigationButton {
                 text: "Next"
                 navIcon: MaterialIcons.chevron_right
                 navIconPosition: "right"
-                Material.accent: "#230f91"
                 highlighted: hovered
                 enabled: root.checkedCount > 0
                 onClicked: root._commit()

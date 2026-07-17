@@ -3,11 +3,16 @@ Python Backend of the Pipeline Batcher UI
 """
 
 # ========== Py standard lib imports ==========
+import os
+import sys
+import time
+import subprocess
 import json
 import logging
 import functools
 import traceback
 from enum import Enum
+from pathlib import Path
 
 # ========== External libraries ==========
 from PySide6.QtCore import (
@@ -20,12 +25,13 @@ from PySide6.QtCore import (
     Property
 )
 
+# ========== Imports from meshroom ==========
+from meshroom import _MESHROOM_ROOT
+
 # ========== Imports from current package ==========
-from pipelineBatcher.ui import utilities
-from pipelineBatcher.ui.entityProvider import (
-    EntityProviderRegistry,
-    TemplateInfo
-)
+from pipelineBatcher.utilities import parseNodeParam, getMgParameterInfo, import_provider
+from pipelineBatcher.entityProvider import EntityProviderRegistry, TemplateInfo
+from pipelineBatcher.ui.instanciation import TemplateCreationState, TemplateInstanciator
 
 
 class PipelineBatcherPages(Enum):
@@ -67,6 +73,15 @@ def busy_slot(message: str = ""):
 class PipelineBatcherBackend(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
+        # Register providers
+        providersRoot = Path(__file__).parent.parent.parent / "providers"
+        for provider in providersRoot.iterdir():
+            if not provider.name.endswith("Provider.py"):
+                continue
+            try:
+                import_provider(str(provider))
+            except Exception as e:
+                logging.error(f"Failed to register provider from file {provider}: {e}.\n\n{traceback.format_exc()}")
         self._templatesIndex: dict[int, TemplateInfo] = EntityProviderRegistry.getTemplateIndex()
         self._app   = parent
         self.reset()
@@ -75,7 +90,7 @@ class PipelineBatcherBackend(QObject):
         self._busy  = False
         self._busyMessage = ""
         self._page  = PipelineBatcherPages.PAGE_TEMPLATE
-        self._state = utilities.TemplateCreationState()
+        self._state = TemplateCreationState()
         self._instanciator = None
 
     def _get_busy(self) -> bool:
@@ -144,10 +159,10 @@ class PipelineBatcherBackend(QObject):
     @busy_slot("Build pipeline instanciator")
     def _prepareInstanciator(self):
         try:
-            self._instanciator = utilities.build_instanciator(self._app, self._state)
+            self._instanciator = TemplateInstanciator(self._app, self._state)
             self.instanciatorChanged.emit()
         except Exception as exc:
-            logging.error(exc)
+            logging.error(f"Failed to prepare instanciator: {exc}\n{traceback.format_exc()}")
             self.errorOccurred.emit(str(exc))
 
     def getSelectedTemplatePath(self):
@@ -235,18 +250,50 @@ class PipelineBatcherBackend(QObject):
         """
         mg_path = self.getSelectedTemplatePath()
         try:
-            node_instance, param_name = utilities.parseNodeParam(node_param)
-            info = utilities.getMgParameterInfo(mg_path, node_instance, param_name)
+            node_instance, param_name = parseNodeParam(node_param)
+            info = getMgParameterInfo(mg_path, node_instance, param_name)
             return json.dumps(info, ensure_ascii=False)
         except Exception as exc:
             logging.warning(f"getParamInfo error: {exc}")
             return json.dumps({"type": "unknown", "default": "", "choices": []})
 
-    # @busy_slot("Set parameters")
     @Slot(str)
     def setParameters(self, params_json: str):
         """Receive the parameter values filled on ParameterPage."""
         self._state.parameters = json.loads(params_json)
+
+    @busy_slot("Opening scene...")
+    @Slot(str)
+    def openMeshroomScene(self, path: str):
+        """Receive the parameter values filled on ParameterPage."""
+        meshroomRoot = Path(_MESHROOM_ROOT)
+        meshroomUI = meshroomRoot / "meshroom" / "ui"
+        if not meshroomUI.exists():
+            logging.error(f"Could not find Meshroom UI module: {meshroomUI}")
+            return
+
+        # Build the environment variables based on the OS
+        env = os.environ.copy()
+        if sys.platform == "win32":
+            env["MESHROOM_INSTALL_DIR"] = str(meshroomRoot)
+
+        # Build the command
+        command = [sys.executable, str(meshroomUI), path]
+        try:
+            levelName = logging.getLevelName(logging.getLogger().level)
+            if levelName:
+                command.extend(["-v", levelName.lower()])
+        except Exception:
+            pass
+
+        logging.info(f"Open Meshroom scene: {command}")
+        try:
+            subprocess.Popen(command, env=env)
+        except Exception as e:
+            logging.error(f"Failed to open Meshroom scene: {e}")
+        else:
+            # Wait for some time while the window open
+            time.sleep(3)
 
     # --- Qt Signals and Properties ---
     pageChanged = Signal(int)

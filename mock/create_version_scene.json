@@ -1,5 +1,6 @@
 {
     "name": "Create Version Scene",
+    "pathTemplate": "{root}/versions/{entity_name}/{entity_name}-v{version}.mg",
     "description": "Create a scene from a version.",
     "template": "{root}/test_template.mg",
     "input_entity_type": "Version",

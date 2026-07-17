@@ -1,12 +1,59 @@
 pragma Singleton
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Material 2.15
 
 /**
  * Singleton that gathers useful colors, shades and system palettes.
  */
 
-QtObject {
+Control {
+
+    // --- Color Palette ---
+    property bool isDark: Material.theme === Material.Dark
+    // Specific colors depending on the theme
+    property color backgroundColor:    isDark ? "#2a2a2a" : "#ddd"
+    property color accent:             isDark ? "#469adf" : "#eb7ec6"
+    property color primary:            isDark ? "#2353ad" : "#c0228b"
+    property color secondary:          isDark ? "#052747" : "#f092d1"
+    property color textOnSecondary:    isDark ? "#d0e4ff" : "#2a2546"
+    property color textColor:          isDark ? "#ccc"    : "#333"
+    property color hoveredText:        isDark ? "#ffffff" : "#462e44"
+    property color primaryText:        isDark ? "#ccc"    : "#fff"  // main text
+    property color secondaryText:      isDark ? "#999"    : "#bbb"  // disabled text on header
+    property color tertiaryText:       isDark ? "#aaa"    : "#888"  // subtle text over backgroundColor
+    property color grey:               isDark ? "#555"    : "#777"
+    property color panelBackground:    isDark ? "#1e1e1e" : "#eee"
+    property color panelBorder:        isDark ? "#333"    : "#ccc"
+    property color headerBackground:   isDark ? "#242424" : "#ccc"
+    property color selectedBackground: isDark ? "#1a3a6e" : "#cfe0f7"
+    property color hoverBackground:    isDark ? "#2a2a2a" : "#e2e2e2"
+    property color rowHoverBackground: isDark ? "#262626" : "#e6e6e6"
+    property color separator:          isDark ? "#2a2a2a" : "#ccc"
+    property color badgeBackground:    isDark ? "#333"    : "#ccc"
+    property color placeholderText:    isDark ? "#666"    : "#999"
+    readonly property color startButton: "#43d668"
+    readonly property color startButtonText: "#424242"
+
+    Behavior on backgroundColor {
+        ColorAnimation { duration: 150 }
+    }
+    Behavior on accent {
+        ColorAnimation { duration: 150 }
+    }
+    Behavior on primary {
+        ColorAnimation { duration: 150 }
+    }
+
+    SystemPalette {
+        id: sys
+        colorGroup: SystemPalette.Active
+    }
+    SystemPalette {
+        id: sysDisabled
+        colorGroup: SystemPalette.Disabled
+    }
+
     readonly property color shotColor: "#1565C0"
     readonly property color assetColor: "#6A1B9A"
     readonly property color sequenceColor: "#00695C"

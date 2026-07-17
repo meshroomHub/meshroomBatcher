@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material 2.15
+import PBComponents 1.0
+
 
 Rectangle {
     id: root
@@ -15,10 +17,9 @@ Rectangle {
     readonly property real dimFactor: Math.min(1.0, progress / 0.20)
 
     // --- Color palette ---
-    property bool lightMode: (Material.theme === Material.Light)
-    readonly property color currentBg:   lightMode ? "#ffb9f6" : "#101069"
-    readonly property color currentText: lightMode ? "#311861" : "#FFFFFF"
-    readonly property color accentColor: lightMode ? "#a937b8" : "#2979FF"
+    readonly property color currentBg:   PBColors.isDark ? "#101069" : "#ffb9f6"
+    readonly property color currentText: PBColors.isDark ? "#FFFFFF" : "#311861"
+    readonly property color accentColor: PBColors.isDark ? "#2979FF" : "#a937b8"
 
     // --- Color animations ---
     color: currentBg

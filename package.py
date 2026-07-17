@@ -64,9 +64,9 @@ with scope("config") as config:
 
 def commands():
     env.PYTHONPATH.append("{this.root}/python")
-    env.PIPELINE_RESOURCES.append("{this.root}/resources")
-    env.REGISTER_MOCK_ENTITYPROVIDER="1"
+    env.MESHROOM_BATCHER_RESOURCES.append("{this.root}/resources")
     # Menu
     env.MESHROOM_PLUGINS_PATH.append("{this.root}/python/pipelineBatcher")
     # Alias
     alias("meshroomBatcher", "python {this.root}/python/pipelineBatcher/ui")
+    alias("meshroomBatcherDev", "MESHROOM_INSTANT_CODING=1 python {this.root}/python/pipelineBatcher/ui")

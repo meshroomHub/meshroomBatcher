@@ -12,9 +12,6 @@ Rectangle {
     property var templateModelData
     property int selectedIndex: -1
 
-    // Theme
-    property bool darkTheme: Material.theme == Material.Dark
-
     // Signals back to TemplatePage
     signal selected(int idx)   // single click
     signal confirmed(int idx)  // double click
@@ -23,18 +20,10 @@ Rectangle {
     radius: 8
 
     // Color settings
-    property color accent: Material.accent
-    property color backgroundColor: darkTheme ? "#2a2a2a" : "#ddd"
-    color: PBColors.interpolate(backgroundColor, accent, selectedIndex === templateIndex ? 0.3 : 0)
-    border.color: selectedIndex === templateIndex ? Material.accent : "transparent"
+    property color backgroundColor: PBColors.backgroundColor
+    color: PBColors.interpolate(backgroundColor, PBColors.accent, selectedIndex === templateIndex ? 0.3 : 0)
+    border.color: selectedIndex === templateIndex ? PBColors.accent : "transparent"
     border.width: selectedIndex === templateIndex ? 2 : 0
-
-    Behavior on color {
-        ColorAnimation { duration: 150 }
-    }
-    Behavior on border.color {
-        ColorAnimation { duration: 200 }
-    }
 
     // Hover state
     property bool hovered: false
@@ -66,7 +55,7 @@ Rectangle {
         }
         spacing: 16
 
-        // Icon / entity type badge
+        // Entity type badge
         Rectangle {
             width: 48; height: 48
             radius: 8
@@ -98,7 +87,7 @@ Rectangle {
             Label {
                 text: templateModelData.description || ""
                 font.pixelSize: 12
-                color: root.darkTheme ? "#aaa" : "#888"
+                color: PBColors.tertiaryText
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }
@@ -126,7 +115,7 @@ Rectangle {
             text: (templateModelData.parameters ? templateModelData.parameters.length : 0)
                     + " param(s)"
             font.pixelSize: 11
-            color: root.darkTheme ? "#aaa" : "#888"
+            color: PBColors.tertiaryText
         }
     }
 }

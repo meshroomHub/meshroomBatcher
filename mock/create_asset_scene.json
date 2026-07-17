@@ -1,8 +1,9 @@
 {
-    "name": "Create Shot Scene",
-    "description": "Create a scene from a shot.",
+    "name": "Create Asset Scene",
+    "pathTemplate": "{root}/assets/{entity_name}/{entity_name}-v{version}.mg",
+    "description": "Create a scene from an asset.",
     "template": "{root}/test_template.mg",
-    "input_entity_type": "Shot",
+    "input_entity_type": "Asset",
     "input_entity_params": {
         "entity_name": "ShotCode_1:string"
     },
