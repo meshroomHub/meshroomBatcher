@@ -213,7 +213,7 @@ class TemplateInstanciator(QObject):
             return list(g.nodes)
 
     def _createInstanceOnUniqueScene(self, graph: Graph, entity: EntityBase):
-        logging.info(f"(_createInstanceOnUniqueScene) entity: {entity}")
+        logging.info(f"Create scene from entity: {entity.id}")
         # Update the entity on the graph
         self._provider.updateEntityOnGraph(self._selectedTemplate, graph, entity)
         filePath = self._provider.generateScenePath(self._templateName, entity)

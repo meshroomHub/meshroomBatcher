@@ -64,6 +64,7 @@ with scope("config") as config:
 
 def commands():
     env.PYTHONPATH.append("{this.root}/python")
+    env.MESHROOM_BATCHER_RESOURCES.append("{this.root}/resources")
     # Menu
     env.MESHROOM_PLUGINS_PATH.append("{this.root}/python/pipelineBatcher")
     # Alias

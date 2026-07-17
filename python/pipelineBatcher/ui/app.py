@@ -29,7 +29,7 @@ from PySide6.QtCore import (
 from meshroom import _MESHROOM_ROOT
 
 # ========== Imports from current package ==========
-from pipelineBatcher.utilities import parseNodeParam, getMgParameterInfo
+from pipelineBatcher.utilities import parseNodeParam, getMgParameterInfo, import_provider
 from pipelineBatcher.entityProvider import EntityProviderRegistry, TemplateInfo
 from pipelineBatcher.ui.instanciation import TemplateCreationState, TemplateInstanciator
 
@@ -73,6 +73,15 @@ def busy_slot(message: str = ""):
 class PipelineBatcherBackend(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
+        # Register providers
+        providersRoot = Path(__file__).parent.parent.parent / "providers"
+        for provider in providersRoot.iterdir():
+            if not provider.name.endswith("Provider.py"):
+                continue
+            try:
+                import_provider(str(provider))
+            except Exception as e:
+                logging.error(f"Failed to register provider from file {provider}: {e}.\n\n{traceback.format_exc()}")
         self._templatesIndex: dict[int, TemplateInfo] = EntityProviderRegistry.getTemplateIndex()
         self._app   = parent
         self.reset()
@@ -153,7 +162,7 @@ class PipelineBatcherBackend(QObject):
             self._instanciator = TemplateInstanciator(self._app, self._state)
             self.instanciatorChanged.emit()
         except Exception as exc:
-            logging.error(exc)
+            logging.error(f"Failed to prepare instanciator: {exc}\n{traceback.format_exc()}")
             self.errorOccurred.emit(str(exc))
 
     def getSelectedTemplatePath(self):

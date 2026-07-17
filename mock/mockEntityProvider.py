@@ -67,7 +67,7 @@ class MockEntityProvider(EntityProvider):
     entityType = "Shot"
         
     def __init__(self):
-        self._root = os.getenv("MR_BATCHER_FILES_ROOT", f"/tmp/meshroomBatcher/{self.name}")
+        self._root = os.getenv("MR_BATCHER_OUTPUT_ROOT", f"/tmp/meshroomBatcher/{self.name}")
         self._templates: dict[str, TemplateInfo] = {t.getName(): t for t in list_templates()}
     
     def listAvailableTemplates(self) -> list[TemplateInfo]:
