@@ -1,6 +1,6 @@
 name = "meshroomBatcher"
 
-release_version = "0.1.0"
+release_version = "0.1.1"
 
 @early()
 def version():
