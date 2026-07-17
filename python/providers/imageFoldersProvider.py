@@ -29,8 +29,9 @@ from pipelineBatcher.entityProvider import (
 
 
 def fetchAllTemplateScenes():
-    templateFolders = os.getenv("MR_BATCHER_TEMPLATES_DIR", "").split(":")
-    templateFolders.append(os.getenv("MESHROOM_BATCHER_RESOURCES"))
+    templateFolders = [p for p in os.getenv("MR_BATCHER_TEMPLATES_DIR", "").split(":") if p]
+    if not templateFolders:
+        templateFolders = [os.getenv("MESHROOM_BATCHER_RESOURCES")]
     templateFolders = [Path(p) for p in templateFolders if p and os.path.exists(p)]
     for folder in templateFolders:
         meshroomFiles = [p for p in folder.iterdir() if p.suffix == ".mg"]
@@ -42,14 +43,16 @@ def buildTemplates() -> dict[str, TemplateInfo]:
     templates = {}
     lastIndex = 0
     for path in fetchAllTemplateScenes():
+        name = " ".join(map(lambda p: p[0].upper() + p[1:], Path(path).stem.split("_")))
         data = {
             "template": path,
+            "name": name,
             "input_entity_type": "ImageFolder",
             "input_entity_params": {},
             "description": f"Pipeline {path}",
         }
         tpl = TemplateInfo.fromDict(data)
-        templates[f"{lastIndex:02d}_{tpl.getName()}"] = tpl
+        templates[f"{lastIndex:02d}_{name}"] = tpl
     return templates
 
 
