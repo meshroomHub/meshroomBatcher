@@ -9,6 +9,12 @@
 This package contains components that implement a Batcher UI for Meshroom.
 The goal is to provide a UI inside Meshroom where users can create and launch a batch of scenes from different source entities.
 
+## How to setup
+
+- You need Meshroom in your environment (correct `PYTHONPATH` environment variable set)
+- You need to register the entity providers through the `MESHROOM_BATCHER_PROVIDERS` environment variable.
+You can see an example [here](./package.py)
+
 ## How does it work
 
 When the tool is launched, it uses entity providers to fetch info. Each provider must implement method to provide:

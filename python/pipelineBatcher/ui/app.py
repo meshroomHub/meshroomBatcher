@@ -74,8 +74,11 @@ class PipelineBatcherBackend(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         # Register providers
-        providersRoot = Path(__file__).parent.parent.parent / "providers"
-        for provider in providersRoot.iterdir():
+        providerFolders = os.getenv("MESHROOM_BATCHER_PROVIDERS", "").split(":")
+        providerModules = []
+        for f in providerFolders:
+            providerModules.extend(Path(f).iterdir())
+        for provider in providerModules:
             if not provider.name.endswith("Provider.py"):
                 continue
             try:
