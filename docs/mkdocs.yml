@@ -8,6 +8,7 @@ nav:
   - Projets:
     - Home: 'index.md'
     - Entity Providers: 'entityProviders.md'
+    - Roadmap: 'ROADMAP.md'
 
 
 # Setup
