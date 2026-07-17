@@ -143,7 +143,6 @@ Item {
 
             delegate: Loader {
                 width: childrenColumn.width
-                height: item ? item.height : 0
                 // Uses runtime relative loading to resolve static recursion limits
                 source: "EntityTreeNode.qml"
 
