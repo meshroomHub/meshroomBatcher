@@ -1,6 +1,9 @@
 <div align="center">
-  <img src="./docs/images/logo.svg" width="250" style="margin:-50px;"/>
-  <h1 style="font-size: value;">Meshroom Batcher</h1>
+  <img src="./docs/images/logo.svg" width="250"/>
+  <h1 style="font-size: value;">
+    Meshroom Batcher <br/>
+    <a href="https://deepwiki.com/meshroomHub/meshroomBatcher"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
+  </h1>
   <i>Pipeline Batcher for Meshroom</i>
   <br/>
   <br/>

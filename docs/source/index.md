@@ -1,5 +1,7 @@
 # Meshroom Batcher Documentation
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/meshroomHub/meshroomBatcher)
+
 ## How to setup
 
 - You need Meshroom in your environment (correct `PYTHONPATH` environment variable set)
