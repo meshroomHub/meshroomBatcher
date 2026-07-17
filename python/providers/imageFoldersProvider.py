@@ -29,8 +29,9 @@ from pipelineBatcher.entityProvider import (
 
 
 def fetchAllTemplateScenes():
-    templateFolders = os.getenv("MR_BATCHER_TEMPLATES_DIR", "").split(":")
-    templateFolders.append(os.getenv("MESHROOM_BATCHER_RESOURCES"))
+    templateFolders = [p for p in os.getenv("MR_BATCHER_TEMPLATES_DIR", "").split(":") if p]
+    if not templateFolders:
+        templateFolders = [os.getenv("MESHROOM_BATCHER_RESOURCES")]
     templateFolders = [Path(p) for p in templateFolders if p and os.path.exists(p)]
     for folder in templateFolders:
         meshroomFiles = [p for p in folder.iterdir() if p.suffix == ".mg"]
@@ -42,21 +43,26 @@ def buildTemplates() -> dict[str, TemplateInfo]:
     templates = {}
     lastIndex = 0
     for path in fetchAllTemplateScenes():
+        name = " ".join(map(lambda p: p[0].upper() + p[1:], Path(path).stem.split("_")))
         data = {
             "template": path,
+            "name": name,
             "input_entity_type": "ImageFolder",
             "input_entity_params": {},
             "description": f"Pipeline {path}",
         }
         tpl = TemplateInfo.fromDict(data)
-        templates[f"{lastIndex:02d}_{tpl.getName()}"] = tpl
+        templates[f"{lastIndex:02d}_{name}"] = tpl
     return templates
 
 
 class ImageFolderTree:
-    def __init__(self, root: str, filterExt: list[str]):
-        self.root = root
-        self.filterExt = filterExt
+    def __init__(self):
+        self.root = os.getenv("MR_BATCHER_IMGFOLDER_ROOT", "")
+        if not os.path.exists(self.root):
+            logging.error("MR_BATCHER_IMGFOLDER_ROOT should be set to a real path.")
+            self.root = None
+        self.filterExt = [".jpg", ".jpeg", ".png", ".exr"]
         self._tree = None
 
     def _hasImages(self, folder: Path) -> bool:
@@ -70,6 +76,14 @@ class ImageFolderTree:
 
     def _buildNode(self, path: str, remainingMaxDepth=5) -> dict:
         """Recursively build a node for the given path"""
+        if path is None:
+            return {
+                "id": "None",
+                "label": "",
+                "icon": "",
+                "hasImages": False,
+                "children": []
+            }
         node = {
             "id": str(path),
             "label": Path(path).stem.replace("_", " "),
@@ -144,10 +158,7 @@ class ImageFolderProvider(EntityProvider):
         self._root = os.getenv("MR_BATCHER_OUTPUT_ROOT", f"/tmp/meshroomBatcher/{self.name}")
         self._path_template = "{root}/{templateName}/{entity_name}-v{version}.mg"
         self._templates = buildTemplates()
-        self._imageFolderTree = ImageFolderTree(
-            root=os.getenv("MR_BATCHER_IMGFOLDER_ROOT", "/"),
-            filterExt=[".jpg", ".jpeg", ".png", ".exr"]
-        )
+        self._imageFolderTree = ImageFolderTree()
 
     def listAvailableTemplates(self) -> list[TemplateInfo]:
         return list(self._templates.values())
