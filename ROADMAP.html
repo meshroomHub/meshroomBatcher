@@ -5,13 +5,11 @@
       
       
       
-        <link rel="canonical" href="https://meshroomhub.github.io/meshroomBatcher/entityProviders.html">
+        <link rel="canonical" href="https://meshroomhub.github.io/meshroomBatcher/ROADMAP.html">
       
       
-        <link rel="prev" href="index.html">
+        <link rel="prev" href="entityProviders.html">
       
-      
-        <link rel="next" href="ROADMAP.html">
       
       
         
@@ -22,7 +20,7 @@
     
     
       
-        <title>Entity Providers - Meshroom Batcher</title>
+        <title>Roadmap - Meshroom Batcher</title>
       
     
     
@@ -83,7 +81,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#entity_providers" class="md-skip">
+        <a href="#meshroombatcher_roadmap" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Entity Providers
+              Roadmap
             
           </span>
         </div>
@@ -287,6 +285,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="entityProviders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entity Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -306,7 +332,7 @@
   <span class="md-ellipsis">
     
   
-    Entity Providers
+    Roadmap
   
 
     
@@ -317,14 +343,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="entityProviders.html" class="md-nav__link md-nav__link--active">
+      <a href="ROADMAP.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    Entity Providers
+    Roadmap
   
 
     
@@ -350,10 +376,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#how_to_implement_a_new_provider" class="md-nav__link">
+  <a href="#intelligent_subtree_fetcher" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How to implement a new provider
+        Intelligent subtree fetcher
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entity_page_resize_columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entity Page resize columns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submit_button_on_last_page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submit button on last page
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use_graph_inputs_to_parse_scene_params" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use graph inputs to parse scene params
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#redirect_meshroom_logs_to_a_new_log_ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Redirect Meshroom logs to a new log UI.
       
     </span>
   </a>
@@ -364,34 +434,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="ROADMAP.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Roadmap
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -431,10 +473,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#how_to_implement_a_new_provider" class="md-nav__link">
+  <a href="#intelligent_subtree_fetcher" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How to implement a new provider
+        Intelligent subtree fetcher
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entity_page_resize_columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entity Page resize columns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submit_button_on_last_page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submit button on last page
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use_graph_inputs_to_parse_scene_params" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use graph inputs to parse scene params
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#redirect_meshroom_logs_to_a_new_log_ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Redirect Meshroom logs to a new log UI.
       
     </span>
   </a>
@@ -458,54 +544,29 @@
 
 
 
-<h1 id="entity_providers">Entity providers<a class="headerlink" href="#entity_providers" title="Permanent link">#</a></h1>
-<h2 id="how_to_implement_a_new_provider">How to implement a new provider<a class="headerlink" href="#how_to_implement_a_new_provider" title="Permanent link">#</a></h2>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>An <code>EntityProvider</code> demo can be found <a href="../../mock/mockEntityProvider.py">here</a></p>
-</div>
-<p>To implement a new provider you must write a class inheriting <code>EntityProvider</code>, and then register it in the <code>EntityProviderRegistry</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pipelineBatcher.entityProvider</span><span class="w"> </span><span class="kn">import</span> <span class="n">EntityBase</span><span class="p">,</span> <span class="n">TemplateInfo</span><span class="p">,</span> <span class="n">EntityProvider</span><span class="p">,</span> <span class="n">EntityProviderRegistry</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">MyEntityProvider</span><span class="p">(</span><span class="n">EntityProvider</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s2">"MyEntityProvider"</span>
-    <span class="n">entityType</span> <span class="o">=</span> <span class="s2">"EntityName"</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">listAvailableTemplates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">TemplateInfo</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""List templates provided by this provider."""</span>
-        <span class="o">...</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">getEntitiesTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">templateName</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return the navigation tree for entity_type.</span>
-
-<span class="sd">        Keys:</span>
-<span class="sd">        - id      : stable identifier used in fetchEntitiesByGroup</span>
-<span class="sd">        - label   : human-readable display name</span>
-<span class="sd">        - icon    : optional emoji / single unicode character</span>
-<span class="sd">        - children: child items</span>
-<span class="sd">        """</span>
-        <span class="o">...</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">fetchEntitiesByGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">templateName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">EntityBase</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return entities belonging to group_id for the given entity_type.</span>
-
-<span class="sd">        Keys:</span>
-<span class="sd">        - id         : passed back to the pipeline as the entity value</span>
-<span class="sd">        - name       : displayed in the Name column</span>
-<span class="sd">        - status     : displayed as a coloured badge (optional)</span>
-<span class="sd">        - description: displayed in the Description column (optional)</span>
-<span class="sd">        """</span>
-        <span class="o">...</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">updateEntityOnGraph</span><span class="p">(</span><span class="n">template</span><span class="p">:</span> <span class="n">TemplateInfo</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">EntityBase</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Update the generated graph with the entity info."""</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">generateScenePath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">templateName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">EntityBase</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Generate the scene destination path."""</span>
-
-<span class="n">EntityProviderRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">MyEntityProvider</span><span class="p">())</span>
-</code></pre></div>
+<h1 id="meshroombatcher_roadmap">MeshroomBatcher Roadmap<a class="headerlink" href="#meshroombatcher_roadmap" title="Permanent link">#</a></h1>
+<p>Here is a draft for some features that we would like to implement in MeshroomBatcher.</p>
+<h2 id="intelligent_subtree_fetcher">Intelligent subtree fetcher<a class="headerlink" href="#intelligent_subtree_fetcher" title="Permanent link">#</a></h2>
+<p>In the Entity Page, instead of fetching the whole tree:
+- fetch the data for the first-level tree
+- if the user clicks on a subtree, then fetch data from this subtree</p>
+<p>This would help improve a lot the ImageFolder provider.</p>
+<h2 id="entity_page_resize_columns">Entity Page resize columns<a class="headerlink" href="#entity_page_resize_columns" title="Permanent link">#</a></h2>
+<p>Add controler on the tree view column width.</p>
+<h2 id="submit_button_on_last_page">Submit button on last page<a class="headerlink" href="#submit_button_on_last_page" title="Permanent link">#</a></h2>
+<p>On the last page we could add an <code>arrow forward</code> button that would launch the submit
+process on scenes. It could be a global submit button and a single button per scene.</p>
+<h2 id="use_graph_inputs_to_parse_scene_params">Use graph inputs to parse scene params<a class="headerlink" href="#use_graph_inputs_to_parse_scene_params" title="Permanent link">#</a></h2>
+<p>For now additional parameters are exposed through the <code>parameters</code> attribute
+on the <code>TemplateInfo</code> class, which means it needs to be set by the provider on the
+<code>listAvailableTemplates</code> method.</p>
+<p>Another way would be to use <a href="https://github.com/alicevision/Meshroom/pull/3164"><code>Graph Input</code> nodes</a>
+which provide a simple function to get exposed parameters. This way the exposed parameters
+would be directly driven by the meshroom scene.</p>
+<p>For now it is not used yet because this PR has not been approved yet.</p>
+<h2 id="redirect_meshroom_logs_to_a_new_log_ui">Redirect Meshroom logs to a new log UI.<a class="headerlink" href="#redirect_meshroom_logs_to_a_new_log_ui" title="Permanent link">#</a></h2>
+<p>Right now when we open a Meshroom scene after the instanciation took place, Meshroom logs
+are mixed with MeshroomBatcher logs. We could add a new UI that would catch Meshroom's logs.</p>
 
 
 
@@ -535,7 +596,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer">
         
           
-          <a href="index.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
+          <a href="entityProviders.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Entity Providers">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
@@ -545,27 +606,11 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Home
+                Entity Providers
               </div>
             </div>
           </a>
         
-        
-          
-          <a href="ROADMAP.html" class="md-footer__link md-footer__link--next" aria-label="Next: Roadmap">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Roadmap
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
-            </div>
-          </a>
         
       </nav>
     
