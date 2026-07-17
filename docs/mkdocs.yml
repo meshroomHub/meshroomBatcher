@@ -19,6 +19,8 @@ theme:
     primary: pink
     accent: deep purple
   logo: ./images/logo.svg
+  favicon: ./favicon.ico
+  custom_dir: custom
   features:
     - navigation.footer
 

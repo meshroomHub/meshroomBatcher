@@ -1,6 +1,10 @@
-# Meshroom Batcher Documentation
-
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/meshroomHub/meshroomBatcher)
+<div align="center">
+  <img src="./images/logo.svg" width="250"/>
+  <h1 style="font-size: value;">Meshroom Batcher <br/></h1>
+  <i>Pipeline Batcher for Meshroom</i>
+  <br/>
+  <br/>
+</div>
 
 ## How to setup
 
