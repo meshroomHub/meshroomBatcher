@@ -36,6 +36,45 @@ Then the UI launches.
 </p>
 
 
+## Providers
+
+**Mock Provider**
+
+The mock provider is a provider that sets up fake data. It's main use is debugging and developping the app.
+It also serves as a reference for implementing providers.
+
+<p align="center">
+    <img width=800 src="./images/mock_provider.png" alt="Mock provider" />
+    <br/>
+    <em>Mock provider.</em>
+</p>
+
+You can test it with the `--mock` command line argument. 
+If you are testing inside meshroo (using the Batcher menu) you can obtain it by setting the `REGISTER_MOCK_ENTITYPROVIDER`
+environment variable to `"1"`
+
+
+**Image Provider**
+
+This provider take a root folder and provide a file explorer that finds folders with images.
+
+<p align="center">
+    <img width=800 src="./images/imagefolder_provider.png" alt="ImageFolder provider" />
+    <br/>
+    <em>Image Folder provider.</em>
+</p>
+
+This require some setup :
+- `MR_BATCHER_IMGFOLDER_ROOT`: the root folder where the file explorer starts.
+- `MR_BATCHER_TEMPLATES_DIR`: a folder with Meshroom template files
+- `MR_BATCHER_OUTPUT_ROOT`: The folder where instanciated files will be created
+
+> [!WARNING]
+> For now the tree view index all folder all at once, there's no smart update (we could implement it when we would expand a subtree it fetches folders then).
+> This means you must avoid setting a big folder to `MR_BATCHER_IMGFOLDER_ROOT`, or this will take a lot of time indexing subfolders.
+
+
+
 ## How to implement a new Entity Provider
 
 You can check [this page](./entityProviders.md)
