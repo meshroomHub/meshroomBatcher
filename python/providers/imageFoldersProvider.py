@@ -135,24 +135,6 @@ class ImageFolderTree:
                 return foundNode
         return None
 
-    def getImagesFolder(self, groupNodeId: str) -> list:
-        tree = self.getTree()
-        selectedNode = self.getNode(tree, groupNodeId)
-        if not selectedNode:
-            return []
-        group_entities = []
-        for n in selectedNode["children"]:
-            if not n["hasImages"]:
-                continue
-            group_entities.append(EntityBase(
-                entity_type="folder",
-                entity_name=n["label"],
-                id=n["id"],
-                status="",
-                description=f"Image folder {n['id']}"
-            ))
-        return group_entities
-
 
 class ImageFolderProvider(EntityProvider):
     name = "ImageFolderProvider"
@@ -175,7 +157,28 @@ class ImageFolderProvider(EntityProvider):
         return tree.get("children", [])
 
     def fetchEntitiesByGroup(self, templateName: str, group_id: str) -> list[EntityBase]:
-        return self._imageFolderTree.getImagesFolder(group_id)
+        tree = self._imageFolderTree.getTree()
+        selectedNode = self._imageFolderTree.getNode(tree, group_id)
+        if not selectedNode:
+            return []
+        group_entities = []
+        for n in selectedNode["children"]:
+            if not n["hasImages"]:
+                continue
+            path = n["id"]
+            imgExts = set(
+                e for e in map(lambda x: x.suffix, Path(path).iterdir()) 
+                if e.lower() in self._imageFolderTree.filterExt
+            )
+            status = list(imgExts)[0][1:] if imgExts else ""
+            group_entities.append(EntityBase(
+                entity_type="folder",
+                entity_name=n["label"],
+                id=path,
+                status=status,
+                description=f"Image folder {n['id']}"
+            ))
+        return group_entities
 
     def generateScenePath(self, templateName: str, entity: EntityBase):
         pathTpl = PathTemplate(self._path_template)
